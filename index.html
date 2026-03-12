@@ -2,13 +2,435 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Của AI Song Kiếm</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Caro Neon Tối Thượng - AI Song Kiếm Hợp Bích</title>
     <style>
-        body { background-color: #121212; color: #00ffcc; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; text-align: center; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #0d0d12; color: #fff; overflow: hidden; touch-action: none; display: flex; flex-direction: column; height: 100vh; }
+        
+        /* HEADER & TRẠNG THÁI MẠNG */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(20,20,30,0.9); box-shadow: 0 4px 15px rgba(0,0,0,0.8); z-index: 10; }
+        .title { color: #00ffcc; font-size: 1.5rem; font-weight: bold; text-shadow: 0 0 10px #00ffcc; text-transform: uppercase; }
+        .lives-box { display: flex; align-items: center; background: #222; padding: 5px 15px; border-radius: 20px; border: 1px solid #ff007f; box-shadow: 0 0 10px rgba(255,0,127,0.5); }
+        .heart { color: #ff007f; font-size: 1.2rem; margin-right: 5px; animation: beat 1s infinite; }
+        @keyframes beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+
+        /* MÀN HÌNH MENU CHÍNH */
+        #menu-screen { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; z-index: 5; }
+        .btn { width: 100%; max-width: 300px; padding: 15px; margin: 10px 0; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.1s; position: relative; overflow: hidden; }
+        .btn:active { transform: scale(0.95); }
+        .btn-ai { background: linear-gradient(90deg, #00ffcc, #0088ff); color: #000; box-shadow: 0 0 15px #00ffcc; }
+        .btn-2p { background: linear-gradient(90deg, #ff007f, #bf00ff); color: #fff; box-shadow: 0 0 15px #ff007f; }
+        .btn-zalo { background: #0088ff; color: #fff; border: 2px solid #fff; }
+        .btn-radar { background: transparent; color: #00ffcc; border: 2px solid #00ffcc; box-shadow: inset 0 0 10px #00ffcc; }
+        .btn-ad { background: #ffaa00; color: #000; display: none; margin-top: 20px; box-shadow: 0 0 20px #ffaa00; }
+
+        /* MÀN HÌNH CHƠI GAME */
+        #game-screen { display: none; flex-direction: column; height: 100%; position: absolute; top: 0; left: 0; width: 100vw; background: #0d0d12; z-index: 20; }
+        .game-topbar { display: flex; justify-content: space-between; padding: 10px; background: #1a1a24; border-bottom: 2px solid #333; }
+        .turn-indicator { font-size: 1.2rem; font-weight: bold; color: #00ffcc; text-shadow: 0 0 5px #00ffcc; }
+
+        /* BÀN CỜ CARO */
+        .board-container { flex-grow: 1; overflow: auto; display: flex; justify-content: center; align-items: center; position: relative; padding: 10px; }
+        #board { display: grid; grid-template-columns: repeat(15, 35px); grid-template-rows: repeat(15, 35px); gap: 1px; background: #333; border: 2px solid #00ffcc; box-shadow: 0 0 20px rgba(0,255,204,0.3); }
+        .cell { width: 35px; height: 35px; background: #111; display: flex; justify-content: center; align-items: center; font-size: 24px; font-family: sans-serif; cursor: pointer; transition: background 0.2s; }
+        .cell:active { background: #222; }
+        
+        /* Hiệu ứng quân cờ Neon */
+        .X { color: #ff007f; text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f; }
+        .O { color: #00ffcc; text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc; }
+        .win-cell { background: rgba(255,255,255,0.2) !important; animation: blink 0.5s infinite alternate; }
+        @keyframes blink { from { box-shadow: inset 0 0 10px #fff; } to { box-shadow: inset 0 0 30px #fff; } }
+
+        /* Lớp Hiệu Ứng (Particles) đè lên bàn cờ */
+        #fx-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 30; }
+
+        /* Màn hình Radar Giả Lập */
+        #radar-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; flex-direction: column; justify-content: center; align-items: center; }
+        .radar-circle { width: 200px; height: 200px; border-radius: 50%; border: 2px solid #00ffcc; position: relative; overflow: hidden; box-shadow: 0 0 30px rgba(0,255,204,0.5); }
+        .radar-sweep { position: absolute; top: 50%; left: 50%; width: 100px; height: 100px; background: linear-gradient(45deg, rgba(0,255,204,0.8), transparent); transform-origin: 0% 0%; animation: spin 2s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        /* Popup Kết Quả */
+        #result-popup { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a24; padding: 30px; border-radius: 15px; border: 2px solid #00ffcc; text-align: center; z-index: 50; box-shadow: 0 0 40px #00ffcc; }
     </style>
 </head>
 <body>
-    <h1>🚀<br>Hệ thống đã kết nối!<br><span style="color:#aaa; font-size: 1rem;">Đang chờ AI Song Kiếm Hợp Bích đổ code game vào...</span></h1>
+
+    <header>
+        <div class="title">CARO NEON</div>
+        <div class="lives-box">
+            <span class="heart">❤</span> <span id="lives-count" style="font-weight:bold; font-size:1.2rem;">3</span>
+        </div>
+    </header>
+
+    <div id="menu-screen">
+        <h2 style="color:#aaa; margin-bottom: 20px;">Chọn Chế Độ Chơi</h2>
+        <button class="btn btn-ai" onclick="startGame('AI')">👤 Đánh Với AI (Siêu Trí Tuệ)</button>
+        <button class="btn btn-2p" onclick="startGame('2P')">👥 2 Người (Chung Máy)</button>
+        <br>
+        <button class="btn btn-zalo" onclick="inviteZalo()">🔗 Mời Bạn Bè Zalo/FB</button>
+        <button class="btn btn-radar" onclick="openRadar()">📡 Quét Đối Thủ Gần Đây</button>
+        
+        <button class="btn btn-ad" id="ad-btn" onclick="watchAdForLives()">📺 Xem Quảng Cáo Nhận 3 Mạng</button>
+    </div>
+
+    <div id="radar-screen">
+        <h2 style="color:#00ffcc; margin-bottom:30px;">Đang tìm thiết bị gần đây...</h2>
+        <div class="radar-circle"><div class="radar-sweep"></div></div>
+        <p style="color:#aaa; margin-top:20px;">(Yêu cầu bật Bluetooth / Vị trí)</p>
+        <button class="btn" style="width:200px; margin-top:30px; background:#ff4d4d;" onclick="closeRadar()">Hủy</button>
+    </div>
+
+    <div id="game-screen">
+        <div class="game-topbar">
+            <button style="background:#ff4d4d; color:#fff; border:none; padding:5px 15px; border-radius:5px; font-weight:bold; cursor:pointer;" onclick="exitGame()">⬅ Thoát</button>
+            <div class="turn-indicator" id="turn-text">Lượt: X (Bạn)</div>
+        </div>
+        
+        <div class="board-container">
+            <div id="board"></div>
+            <canvas id="fx-layer"></canvas>
+        </div>
+
+        <div id="result-popup">
+            <h1 id="result-text" style="color:#fff; margin-bottom:20px; text-shadow:0 0 10px #fff;">X THẮNG!</h1>
+            <button class="btn btn-ai" onclick="exitGame()">Quay Lại Menu</button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // HỆ THỐNG ÂM THANH (Tủm tủm)
+        // ==========================================
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTumSound() {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            
+            const now = audioCtx.currentTime;
+            osc.type = 'sine'; // Sóng hình sin nghe tròn tiếng như giọt nước
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(150, now + 0.15); // Rớt tần số nhanh tạo tiếng "Tủm"
+            
+            gain.gain.setValueAtTime(0.8, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            
+            osc.start(now); osc.stop(now + 0.15);
+        }
+
+        // ==========================================
+        // HỆ THỐNG MẠNG (LIVES) & MENU
+        // ==========================================
+        let lives = 3;
+        function updateLivesUI() {
+            document.getElementById('lives-count').innerText = lives;
+            if(lives <= 0) {
+                document.querySelectorAll('.btn-ai, .btn-2p, .btn-radar').forEach(b => b.style.opacity = '0.5');
+                document.getElementById('ad-btn').style.display = 'block';
+            } else {
+                document.querySelectorAll('.btn-ai, .btn-2p, .btn-radar').forEach(b => b.style.opacity = '1');
+                document.getElementById('ad-btn').style.display = 'none';
+            }
+        }
+
+        function watchAdForLives() {
+            alert("Sketchware: Gọi sự kiện Admob Rewarded Video ở đây!\nSau khi xem xong, cộng mạng.");
+            lives += 3; updateLivesUI();
+        }
+
+        function inviteZalo() {
+            // Dùng Web Share API để gọi bảng chia sẻ mặc định của máy (Zalo, Mess, SMS...)
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Chơi Caro Neon cùng mình nhé!',
+                    text: 'Tham gia ván Caro nảy lửa cùng siêu trí tuệ AI Song Kiếm Hợp Bích. Bấm vào link để chiến!',
+                    url: 'https://app-cua-ban.com'
+                }).catch(console.error);
+            } else {
+                alert("Trình duyệt không hỗ trợ Share API.");
+            }
+        }
+
+        function openRadar() {
+            if(lives <= 0) return alert("Hết mạng! Hãy xem quảng cáo để chơi tiếp.");
+            document.getElementById('radar-screen').style.display = 'flex';
+            console.log("SKETCHWARE HOOK: START_NEARBY_DISCOVERY");
+            // Gửi tín hiệu cho Sketchware bật Bluetooth/WiFi Direct
+            setTimeout(() => {
+                alert("Mô phỏng: Không tìm thấy ai gần đây. Sketchware sẽ xử lý phần kết nối thực tế.");
+                closeRadar();
+            }, 3000);
+        }
+        function closeRadar() { document.getElementById('radar-screen').style.display = 'none'; }
+
+        // ==========================================
+        // CORE GAME CARO
+        // ==========================================
+        const COLS = 15; const ROWS = 15;
+        let board = [];
+        let currentPlayer = 'X';
+        let gameMode = '2P'; // '2P' or 'AI'
+        let gameActive = false;
+
+        const boardEl = document.getElementById('board');
+        const turnText = document.getElementById('turn-text');
+        
+        // Canvas Effects
+        const cvs = document.getElementById('fx-layer');
+        const ctx = cvs.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            cvs.width = boardEl.offsetWidth;
+            cvs.height = boardEl.offsetHeight;
+        }
+
+        function createBoard() {
+            boardEl.innerHTML = ''; board = [];
+            for (let r = 0; r < ROWS; r++) {
+                let row = [];
+                for (let c = 0; c < COLS; c++) {
+                    row.push('');
+                    let cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = `cell-${r}-${c}`;
+                    cell.onclick = () => handleMove(r, c);
+                    boardEl.appendChild(cell);
+                }
+                board.push(row);
+            }
+            resizeCanvas();
+        }
+
+        function startGame(mode) {
+            if(lives <= 0) return alert("Hết mạng! Hãy xem quảng cáo để có mạng chơi.");
+            lives--; updateLivesUI(); // Trừ 1 mạng khi bắt đầu chơi
+            
+            gameMode = mode; currentPlayer = 'X'; gameActive = true;
+            document.getElementById('menu-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+            document.getElementById('result-popup').style.display = 'none';
+            
+            createBoard();
+            updateTurnText();
+            animateParticles(); // Bật vòng lặp vẽ hiệu ứng
+        }
+
+        function exitGame() {
+            gameActive = false;
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('menu-screen').style.display = 'flex';
+        }
+
+        function updateTurnText() {
+            if(gameMode === 'AI' && currentPlayer === 'O') {
+                turnText.innerText = "Lượt: AI đang nghĩ..."; turnText.style.color = "#00ffcc";
+            } else {
+                turnText.innerText = `Lượt: ${currentPlayer}`;
+                turnText.style.color = currentPlayer === 'X' ? "#ff007f" : "#00ffcc";
+            }
+        }
+
+        function spawnParticles(x, y, color) {
+            for(let i=0; i<12; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8,
+                    life: 1, color: color, size: Math.random() * 4 + 2
+                });
+            }
+        }
+
+        function animateParticles() {
+            if(!gameActive && particles.length === 0) return;
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+            for(let i=0; i<particles.length; i++) {
+                let p = particles[i];
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(${p.color === 'X' ? '255,0,127' : '0,255,204'}, ${p.life})`;
+                ctx.fill();
+                p.x += p.vx; p.y += p.vy; p.life -= 0.04;
+                if(p.life <= 0) { particles.splice(i, 1); i--; }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        function handleMove(r, c) {
+            if (!gameActive || board[r][c] !== '') return;
+            if (gameMode === 'AI' && currentPlayer === 'O') return; // Chặn bấm khi AI đang đánh
+
+            makeMove(r, c, currentPlayer);
+
+            if(checkWinCondition(r, c, currentPlayer)) return; // Nếu thắng thì dừng
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            updateTurnText();
+
+            if (gameMode === 'AI' && currentPlayer === 'O') {
+                setTimeout(aiMove, 300); // AI nghĩ 0.3s cho giống người
+            }
+        }
+
+        function makeMove(r, c, player) {
+            board[r][c] = player;
+            let cellEl = document.getElementById(`cell-${r}-${c}`);
+            cellEl.innerText = player;
+            cellEl.classList.add(player);
+            
+            playTumSound();
+            
+            // Tính tọa độ Canvas để nổ hạt
+            let rect = cellEl.getBoundingClientRect();
+            let boardRect = boardEl.getBoundingClientRect();
+            let pX = rect.left - boardRect.left + rect.width/2;
+            let pY = rect.top - boardRect.top + rect.height/2;
+            spawnParticles(pX, pY, player);
+        }
+
+        // ==========================================
+        // LUẬT CHƠI: 5 CON CHẶN 2 ĐẦU KHÔNG TÍNH
+        // ==========================================
+        function checkWinCondition(r, c, player) {
+            const directions = [
+                {dr: 0, dc: 1},  // Ngang
+                {dr: 1, dc: 0},  // Dọc
+                {dr: 1, dc: 1},  // Chéo chính
+                {dr: 1, dc: -1}  // Chéo phụ
+            ];
+
+            for (let dir of directions) {
+                let count = 1;
+                let winCells = [{r, c}];
+                let blockedEnds = 0;
+
+                // Đếm về một phía
+                let r1 = r + dir.dr, c1 = c + dir.dc;
+                while (r1 >= 0 && r1 < ROWS && c1 >= 0 && c1 < COLS && board[r1][c1] === player) {
+                    count++; winCells.push({r: r1, c: c1});
+                    r1 += dir.dr; c1 += dir.dc;
+                }
+                // Check đầu chặn thứ nhất
+                if (r1 < 0 || r1 >= ROWS || c1 < 0 || c1 >= COLS || (board[r1][c1] !== '' && board[r1][c1] !== player)) {
+                    blockedEnds++;
+                }
+
+                // Đếm về phía ngược lại
+                let r2 = r - dir.dr, c2 = c - dir.dc;
+                while (r2 >= 0 && r2 < ROWS && c2 >= 0 && c2 < COLS && board[r2][c2] === player) {
+                    count++; winCells.push({r: r2, c: c2});
+                    r2 -= dir.dr; c2 -= dir.dc;
+                }
+                // Check đầu chặn thứ hai
+                if (r2 < 0 || r2 >= ROWS || c2 < 0 || c2 >= COLS || (board[r2][c2] !== '' && board[r2][c2] !== player)) {
+                    blockedEnds++;
+                }
+
+                // LUẬT GOMOKU: Đúng 5 con, và KHÔNG bị chặn 2 đầu
+                if (count >= 5 && blockedEnds < 2) {
+                    endGame(player, winCells);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function endGame(winner, winCells) {
+            gameActive = false;
+            winCells.forEach(cell => {
+                document.getElementById(`cell-${cell.r}-${cell.c}`).classList.add('win-cell');
+            });
+            
+            setTimeout(() => {
+                let pop = document.getElementById('result-popup');
+                let txt = document.getElementById('result-text');
+                txt.innerText = `${winner} THẮNG!`;
+                txt.style.color = winner === 'X' ? '#ff007f' : '#00ffcc';
+                txt.style.textShadow = `0 0 20px ${winner === 'X' ? '#ff007f' : '#00ffcc'}`;
+                pop.style.display = 'block';
+            }, 800);
+        }
+
+        // ==========================================
+        // BỘ NÃO AI (HEURISTIC ĐÁNH GIÁ ĐIỂM SỐ BÁ ĐẠO)
+        // ==========================================
+        function aiMove() {
+            if (!gameActive) return;
+            let bestScore = -Infinity;
+            let bestMove = { r: -1, c: -1 };
+
+            // Nếu bàn cờ trống, đánh giữa
+            let isEmpty = true;
+            for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) if(board[r][c] !== '') isEmpty = false;
+            if(isEmpty) { handleMove(7, 7); return; }
+
+            // Duyệt toàn bộ ô trống, tính điểm tấn công và phòng thủ
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (board[r][c] === '') {
+                        let attackScore = evaluateCell(r, c, 'O'); // Điểm AI đánh
+                        let defenseScore = evaluateCell(r, c, 'X'); // Điểm chặn Người đánh
+
+                        // Trí tuệ AI: Cố gắng thắng, nếu không thì phải chặn người chơi gắt gao
+                        let totalScore = attackScore + defenseScore;
+                        
+                        // Ưu tiên phòng ngự cực cao nếu người chơi sắp thắng (4 con)
+                        if (defenseScore >= 100000) totalScore += 500000;
+
+                        if (totalScore > bestScore) {
+                            bestScore = totalScore; bestMove = { r, c };
+                        } else if (totalScore === bestScore && Math.random() > 0.5) {
+                            bestMove = { r, c }; // Đánh ngẫu nhiên nếu điểm bằng nhau để đa dạng lối đánh
+                        }
+                    }
+                }
+            }
+            
+            makeMove(bestMove.r, bestMove.c, 'O');
+            if(checkWinCondition(bestMove.r, bestMove.c, 'O')) return;
+            
+            currentPlayer = 'X'; updateTurnText();
+        }
+
+        // Hàm tính điểm cho một nước đi giả định
+        function evaluateCell(r, c, player) {
+            const directions = [{dr: 0, dc: 1}, {dr: 1, dc: 0}, {dr: 1, dc: 1}, {dr: 1, dc: -1}];
+            let score = 0;
+            let opponent = player === 'X' ? 'O' : 'X';
+
+            for (let dir of directions) {
+                let consecutive = 1; let blocks = 0; let emptyEnds = 0;
+
+                // Hướng 1
+                let r1 = r + dir.dr, c1 = c + dir.dc;
+                while (r1 >= 0 && r1 < ROWS && c1 >= 0 && c1 < COLS && board[r1][c1] === player) {
+                    consecutive++; r1 += dir.dr; c1 += dir.dc;
+                }
+                if (r1 < 0 || r1 >= ROWS || c1 < 0 || c1 >= COLS || board[r1][c1] === opponent) blocks++;
+                else emptyEnds++;
+
+                // Hướng 2
+                let r2 = r - dir.dr, c2 = c - dir.dc;
+                while (r2 >= 0 && r2 < ROWS && c2 >= 0 && c2 < COLS && board[r2][c2] === player) {
+                    consecutive++; r2 -= dir.dr; c2 -= dir.dc;
+                }
+                if (r2 < 0 || r2 >= ROWS || c2 < 0 || c2 >= COLS || board[r2][c2] === opponent) blocks++;
+                else emptyEnds++;
+
+                // Chấm điểm theo chuỗi
+                if (blocks === 2 && consecutive < 5) continue; // Bị chặn 2 đầu thì vô giá trị
+
+                if (consecutive >= 5) score += 1000000; // Thắng chắc
+                else if (consecutive === 4 && blocks === 0) score += 50000; // 4 con trống 2 đầu
+                else if (consecutive === 4 && blocks === 1) score += 10000; // 4 con chặn 1 đầu
+                else if (consecutive === 3 && blocks === 0) score += 5000;  // 3 con trống 2 đầu
+                else if (consecutive === 3 && blocks === 1) score += 500;   // 3 con chặn 1 đầu
+                else if (consecutive === 2 && blocks === 0) score += 100;   // 2 con
+            }
+            return score;
+        }
+    </script>
 </body>
 </html>
