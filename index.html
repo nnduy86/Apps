@@ -15,10 +15,16 @@
         
         label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 5px; margin-top: 10px; }
         .input-group { position: relative; }
-        input[type="text"], input[type="number"], select { width: 100%; padding: 10px; background: #000; border: 1px solid #444; color: #fff; border-radius: 6px; font-size: 1rem; outline: none; transition: 0.3s; }
+        
+        input[type="search"], input[type="number"], input[type="text"], select { width: 100%; padding: 10px; background: #000; border: 1px solid #444; color: #fff; border-radius: 6px; font-size: 1rem; outline: none; transition: 0.3s; }
         input:focus, select:focus { border-color: var(--neon-blue); box-shadow: 0 0 8px rgba(0, 243, 255, 0.4); }
         
-        /* Hộp gợi ý địa điểm */
+        input[type="search"]::-webkit-search-cancel-button {
+            -webkit-appearance: none; height: 18px; width: 18px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23ffffff" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>') no-repeat center center;
+            background-size: contain; cursor: pointer; opacity: 0.6; transition: 0.3s; margin-right: 5px;
+        }
+
         .suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #222; border: 1px solid var(--neon-blue); border-radius: 0 0 6px 6px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.8); }
         .suggestion-item { padding: 12px 10px; border-bottom: 1px solid #444; font-size: 0.95rem; cursor: pointer; color: #ddd; }
         .suggestion-item:hover, .suggestion-item:active { background: var(--neon-blue); color: #000; }
@@ -29,12 +35,23 @@
         .btn-action { background: transparent; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 6px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold; text-shadow: 0 0 5px var(--neon-green); text-transform: uppercase; }
         .btn-action:active { background: var(--neon-green); color: #000; }
         .btn-goong { border-color: var(--neon-yellow); color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); }
-        .btn-goong:active { background: var(--neon-yellow); color: #000; }
-        .btn-quote { background: linear-gradient(45deg, #ff00ea, #4a00e0); border: none; color: white; font-size: 1.1rem; box-shadow: 0 0 15px rgba(255, 0, 234, 0.5); }
-
+        
         .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
         .check-item { background: #222; padding: 8px 12px; border-radius: 20px; border: 1px solid #444; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; }
         .check-item input { accent-color: var(--neon-pink); }
+
+        /* Nút tính giá */
+        .btn-quote { 
+            background: linear-gradient(45deg, #ff00ea, #4a00e0); border: none; color: white; 
+            font-size: 1.1rem; box-shadow: 0 0 15px rgba(255, 0, 234, 0.5); 
+        }
+
+        /* Nút cộng dồn phụ phí nhanh */
+        .quick-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+        .tag-btn { background: #1a1a1a; border: 1px solid #555; color: #00f3ff; font-size: 0.75rem; padding: 5px 8px; border-radius: 15px; cursor: pointer; transition: 0.2s;}
+        .tag-btn:active { background: #00f3ff; color: #000; }
+        .tag-clear { color: #ff5252; border-color: #ff5252; }
+        .tag-clear:active { background: #ff5252; color: #fff; }
 
         #result-box { display: none; background: linear-gradient(145deg, #1a0014, #00121a); border: 2px solid var(--neon-blue); border-radius: 15px; padding: 20px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.2); margin-top: 20px; animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -55,13 +72,13 @@
         
         <label>Điểm Đón:</label>
         <div class="input-group">
-            <input type="text" id="startLoc" placeholder="Nhập địa chỉ đón..." oninput="getSuggestions('startLoc', 'startSug')" onfocus="getSuggestions('startLoc', 'startSug')" autocomplete="off">
+            <input type="search" id="startLoc" placeholder="Nhập địa chỉ đón..." oninput="getSuggestions('startLoc', 'startSug')" onfocus="getSuggestions('startLoc', 'startSug')" autocomplete="off">
             <div id="startSug" class="suggestions"></div>
         </div>
 
         <label>Điểm Đến:</label>
         <div class="input-group">
-            <input type="text" id="endLoc" placeholder="Nhập địa chỉ đến..." oninput="getSuggestions('endLoc', 'endSug')" onfocus="getSuggestions('endLoc', 'endSug')" autocomplete="off">
+            <input type="search" id="endLoc" placeholder="Nhập địa chỉ đến..." oninput="getSuggestions('endLoc', 'endSug')" onfocus="getSuggestions('endLoc', 'endSug')" autocomplete="off">
             <div id="endSug" class="suggestions"></div>
         </div>
         
@@ -71,7 +88,7 @@
         <div class="row" style="margin-top: 15px;">
             <div class="col">
                 <label>Khoảng Cách (KM):</label>
-                <input type="number" id="distance" placeholder="Số KM">
+                <input type="text" id="distance" placeholder="Số KM">
             </div>
             <div class="col">
                 <label>Loại Chuyến:</label>
@@ -98,36 +115,40 @@
             <div class="col">
                 <label>Mức Giá/KM:</label>
                 <select id="serviceType">
-                    <option value="13000">Grab/Be (13k)</option>
-                    <option value="15000">Taxi (15k)</option>
-                    <option value="11000">Xe Dù (11k)</option>
+                    <option value="13000">Grab/Be (13.000đ)</option>
+                    <option value="15000">Taxi (15.000đ)</option>
+                    <option value="11000">Xe Dù (11.000đ)</option>
                 </select>
             </div>
         </div>
-        <label>Giá Xăng/Dầu (VNĐ/Lít):</label>
-        <input type="number" id="fuelPrice" value="24000">
+        
+        <label style="display: flex; justify-content: space-between;">
+            Giá Xăng/Dầu (VNĐ/Lít): 
+            <span style="color:var(--neon-green); cursor:pointer;" onclick="autoUpdateFuelPrice()">🔄 Cập nhật</span>
+        </label>
+        <input type="text" id="fuelPrice" oninput="formatCurrency(this)" value="24.000">
     </div>
 
     <div class="card">
-        <div class="card-title">3. PHỤ PHÍ LỘ TRÌNH</div>
-        <label>Phí Cầu Đường / Cao Tốc:</label>
-        <select id="tollSelect" onchange="toggleManual('tollSelect', 'manualToll')">
-            <option value="0">Không đi qua trạm thu phí</option>
-            <option value="39000">Cao tốc Long Thành (39k)</option>
-            <option value="98000">Cao tốc LT - Dầu Giây (98k)</option>
-            <option value="103000">Cao tốc Trung Lương (103k)</option>
-            <option value="custom">🚧 Tự nhập số tiền...</option>
-        </select>
-        <input type="number" id="manualToll" style="display:none; margin-top:5px;" placeholder="Nhập tiền vé ETC..." value="0">
+        <div class="card-title">3. PHỤ PHÍ LỘ TRÌNH (CỘNG DỒN)</div>
+        
+        <label>Tổng Phí Cầu Đường / ETC (VNĐ):</label>
+        <input type="text" id="tollFee" placeholder="Nhập hoặc chọn bên dưới..." oninput="formatCurrency(this)" value="0">
+        <div class="quick-tags">
+            <span class="tag-btn" onclick="addMoney('tollFee', 39000)">+ LT (39k)</span>
+            <span class="tag-btn" onclick="addMoney('tollFee', 98000)">+ Dầu Giây (98k)</span>
+            <span class="tag-btn" onclick="addMoney('tollFee', 78000)">+ Phan Thiết (78k)</span>
+            <span class="tag-btn" onclick="addMoney('tollFee', 103000)">+ Trung Lương (103k)</span>
+            <span class="tag-btn tag-clear" onclick="clearMoney('tollFee')">❌ Xóa trắng</span>
+        </div>
 
-        <label>Vé Phà / Qua đò:</label>
-        <select id="ferrySelect" onchange="toggleManual('ferrySelect', 'manualFerry')">
-            <option value="0">Không đi phà</option>
-            <option value="12000">Phà Cát Lái (12k)</option>
-            <option value="25000">Phà Bình Khánh (25k)</option>
-            <option value="custom">⛴️ Tự nhập số tiền...</option>
-        </select>
-        <input type="number" id="manualFerry" style="display:none; margin-top:5px;" placeholder="Nhập tiền vé phà..." value="0">
+        <label style="margin-top: 15px;">Tổng Vé Phà / Qua Đò (VNĐ):</label>
+        <input type="text" id="ferryFee" placeholder="Nhập hoặc chọn bên dưới..." oninput="formatCurrency(this)" value="0">
+        <div class="quick-tags">
+            <span class="tag-btn" onclick="addMoney('ferryFee', 12000)">+ Phà Cát Lái (12k)</span>
+            <span class="tag-btn" onclick="addMoney('ferryFee', 25000)">+ Bình Khánh (25k)</span>
+            <span class="tag-btn tag-clear" onclick="clearMoney('ferryFee')">❌ Xóa trắng</span>
+        </div>
 
         <div class="checkbox-group">
             <label class="check-item"><input type="checkbox" id="feePark" value="20000"> Sân bay/Bến bãi (20k)</label>
@@ -158,7 +179,77 @@
     <script>
         const GOONG_API_KEY = "20EqreM05diMJrpTrzot0VLzKOcrgwFq81rApwxw";
 
-        // 1. HÀM TẠO ĐỀ XUẤT (GHIM VỊ TRÍ HIỆN TẠI LÊN ĐẦU)
+        // ==========================================
+        // BỘ CÔNG CỤ XỬ LÝ SỐ CÓ DẤU CHẤM HÀNG NGÀN
+        // ==========================================
+        
+        // 1. Hàm tự động thêm dấu chấm khi gõ
+        function formatCurrency(inputElement) {
+            // Lọc bỏ các ký tự không phải là số
+            let val = inputElement.value.replace(/\D/g, '');
+            if(val === '') {
+                inputElement.value = '';
+                return;
+            }
+            // Định dạng lại theo chuẩn Việt Nam (100.000)
+            inputElement.value = parseInt(val, 10).toLocaleString('vi-VN');
+        }
+
+        // 2. Hàm dịch ngược từ chữ có dấu chấm (100.000) thành số máy tính hiểu (100000)
+        function parseNum(str) {
+            if (!str) return 0;
+            // Thay dấu phẩy KM thành dấu chấm thập phân nếu có, loại bỏ dấu chấm hàng ngàn
+            if(str.includes(',') && str.length < 6) {
+                return parseFloat(str.replace(',', '.')); // Xử lý số KM 15,5 km
+            }
+            return parseInt(str.replace(/\./g, ''), 10) || 0;
+        }
+
+        // 3. Hàm xử lý nút bấm cộng dồn tiền
+        function addMoney(inputId, amount) {
+            let inputEl = document.getElementById(inputId);
+            let currentVal = parseNum(inputEl.value);
+            let newVal = currentVal + amount;
+            inputEl.value = newVal.toLocaleString('vi-VN');
+        }
+
+        function clearMoney(inputId) {
+            document.getElementById(inputId).value = "0";
+        }
+
+
+        // ==========================================
+        // TỰ ĐỘNG CẬP NHẬT GIÁ XĂNG (BẢN NÂNG CẤP CÓ DẤU CHẤM)
+        // ==========================================
+        async function autoUpdateFuelPrice() {
+            const fuelInput = document.getElementById('fuelPrice');
+            const originalValue = fuelInput.value;
+            fuelInput.value = "Đang tải..."; 
+            
+            try {
+                let res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://webgia.com/gia-xang-dau/petrolimex/'));
+                let data = await res.json();
+                let html = data.contents;
+                
+                let match = html.match(/RON\s*95-III[\s\S]{0,150}?(2[0-9][.,][0-9]{3})/i);
+                if(match && match[1]) {
+                    let price = match[1].replace(/[,.]/g, ''); 
+                    // Gắn vào ô nhập với định dạng có dấu chấm
+                    fuelInput.value = parseInt(price, 10).toLocaleString('vi-VN');
+                } else {
+                    throw new Error("Lỗi đọc cấu trúc");
+                }
+            } catch(e) {
+                fuelInput.value = originalValue;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', autoUpdateFuelPrice);
+
+
+        // ==========================================
+        // GHIM VỊ TRÍ VÀ GỢI Ý ĐỊA CHỈ
+        // ==========================================
         let debounceTimer;
         async function getSuggestions(inputId, sugBoxId) {
             clearTimeout(debounceTimer);
@@ -166,10 +257,8 @@
             let val = inputEl.value;
             let sugBox = document.getElementById(sugBoxId);
             
-            // Xóa tọa độ ngầm nếu người dùng gõ thay đổi text
             inputEl.removeAttribute('data-coords');
 
-            // Xây dựng nút "Vị trí hiện tại" cho ô Điểm Đón
             let pinnedItem = '';
             if (inputId === 'startLoc') {
                 pinnedItem = `<div class="suggestion-item" style="color: var(--neon-green); font-weight: bold; border-bottom: 2px solid #444;" onclick="selectCurrentLocation()">
@@ -177,7 +266,6 @@
                               </div>`;
             }
 
-            // Nếu người dùng chưa gõ hoặc gõ ít hơn 2 ký tự
             if(val.length < 2) { 
                 if (pinnedItem) {
                     sugBox.innerHTML = pinnedItem;
@@ -188,13 +276,12 @@
                 return; 
             }
 
-            // Gọi API Goong khi người dùng gõ
             debounceTimer = setTimeout(async () => {
                 try {
                     let res = await fetch(`https://rsapi.goong.io/Place/AutoComplete?input=${encodeURIComponent(val)}&api_key=${GOONG_API_KEY}`);
                     let data = await res.json();
                     
-                    sugBox.innerHTML = pinnedItem; // Chèn nút ghim vào đầu
+                    sugBox.innerHTML = pinnedItem; 
                     
                     if(data.predictions && data.predictions.length > 0) {
                         data.predictions.forEach(item => {
@@ -213,7 +300,6 @@
             }, 300);
         }
 
-        // Ẩn bảng gợi ý khi bấm ra ngoài
         document.addEventListener('click', function(e) {
             if(!e.target.closest('.input-group')) {
                 document.getElementById('startSug').style.display = 'none';
@@ -221,13 +307,11 @@
             }
         });
 
-        // 2. XỬ LÝ KHI BẤM "CHỌN VỊ TRÍ HIỆN TẠI"
         function selectCurrentLocation() {
             let startInput = document.getElementById('startLoc');
             let sugBox = document.getElementById('startSug');
-            
             sugBox.style.display = 'none';
-            startInput.value = "📍 Vị trí hiện tại (Đang lấy...)"; 
+            startInput.value = "📍 Vị trí hiện (Đang lấy...)"; 
             
             if (!navigator.geolocation) {
                 alert("Thiết bị không hỗ trợ định vị!");
@@ -239,50 +323,40 @@
                 (position) => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
-                    
-                    // Hiện chữ trên giao diện
                     startInput.value = "📍 Vị trí hiện tại"; 
-                    
-                    // Lưu tọa độ thật vào thuộc tính ẩn để đo khoảng cách
                     startInput.setAttribute('data-coords', `${lat},${lng}`); 
                 },
                 (error) => {
-                    alert("Không thể lấy vị trí. Vui lòng cấp quyền GPS cho ứng dụng!");
+                    alert("Không thể lấy vị trí. Cấp quyền GPS nhé!");
                     startInput.value = "";
                 },
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
         }
 
-        function toggleManual(selectId, inputId) {
-            let val = document.getElementById(selectId).value;
-            document.getElementById(inputId).style.display = (val === 'custom') ? 'block' : 'none';
-        }
-
-        // 3. TỰ ĐỘNG ĐO KHOẢNG CÁCH (XÀI TỌA ĐỘ ẨN NẾU CÓ)
+        // ==========================================
+        // ĐO KHOẢNG CÁCH TỰ ĐỘNG
+        // ==========================================
         async function autoCalculateDistance() {
             const startInput = document.getElementById('startLoc');
             const endInput = document.getElementById('endLoc');
-            
             const startStr = startInput.value;
             const endStr = endInput.value;
 
-            if(!startStr || !endStr) return alert("Vui lòng nhập Điểm Đón và Điểm Đến!");
+            if(!startStr || !endStr) return alert("Vui lòng nhập Điểm Đón và Đến!");
             document.getElementById('loading').style.display = 'block';
 
             try {
-                // Hàm con: Ưu tiên lấy tọa độ ẩn, nếu không có mới đem text đi dịch
                 async function getCoords(address, inputElement) {
                     if (inputElement.hasAttribute('data-coords')) {
                         return inputElement.getAttribute('data-coords');
                     }
-                    
                     if(address.includes(',') && !address.match(/[a-zA-Z]/)) return address; 
                     
                     let res = await fetch(`https://rsapi.goong.io/geocode?address=${encodeURIComponent(address)}&api_key=${GOONG_API_KEY}`);
                     let data = await res.json();
                     if(data.results && data.results.length > 0) return `${data.results[0].geometry.location.lat},${data.results[0].geometry.location.lng}`;
-                    else throw new Error(`Không tìm thấy: ${address}`);
+                    else throw new Error(`Không tìm thấy địa chỉ`);
                 }
 
                 let originCoords = await getCoords(startStr, startInput);
@@ -293,46 +367,59 @@
 
                 if(routeData.routes && routeData.routes.length > 0) {
                     let distanceKm = (routeData.routes[0].legs[0].distance.value / 1000).toFixed(1);
-                    document.getElementById('distance').value = distanceKm;
+                    // Sửa dấu . thành dấu , cho người Việt dễ nhìn (VD: 15,5)
+                    document.getElementById('distance').value = distanceKm.replace('.', ',');
                     document.getElementById('loading').style.display = 'none';
                 } else throw new Error("Không thể vẽ đường!");
 
             } catch (error) {
                 document.getElementById('loading').style.display = 'none';
-                alert("Lỗi tính quãng đường: " + error.message);
+                alert("Lỗi: " + error.message);
             }
         }
 
-        // 4. TÍNH BÁO GIÁ (GIỮ NGUYÊN CODE CŨ CỦA BẠN)
+        // ==========================================
+        // TÍNH TOÁN BÁO GIÁ
+        // ==========================================
         function showQuote() {
-            let distance = parseFloat(document.getElementById('distance').value);
-            if(!distance || distance <= 0) { alert("Vui lòng nhập hoặc đo khoảng cách (KM) trước khi báo giá!"); return; }
+            // Lấy khoảng cách (có thể có dạng 15,5 hoặc 15.5)
+            let distanceStr = document.getElementById('distance').value;
+            let distance = parseFloat(distanceStr.replace(',', '.'));
+            
+            if(!distance || distance <= 0) { alert("Nhập hoặc đo khoảng cách trước!"); return; }
 
             let tripMultiplier = parseFloat(document.getElementById('tripType').value);
             let servicePrice = parseFloat(document.getElementById('serviceType').value);
             let days = parseInt(document.getElementById('days').value) || 1;
-            let fuelPrice = parseFloat(document.getElementById('fuelPrice').value) || 0;
+            
+            // Xóa dấu chấm hàng ngàn trước khi tính
+            let fuelPrice = parseNum(document.getElementById('fuelPrice').value);
+            let tollFee = parseNum(document.getElementById('tollFee').value);
+            let ferryFee = parseNum(document.getElementById('ferryFee').value);
             
             let carSelect = document.getElementById('carType');
             let fuelConsumption = parseFloat(carSelect.options[carSelect.selectedIndex].getAttribute('data-fuel'));
 
-            let tollFee = document.getElementById('tollSelect').value === 'custom' ? parseFloat(document.getElementById('manualToll').value) || 0 : parseFloat(document.getElementById('tollSelect').value) || 0;
-            let ferryFee = document.getElementById('ferrySelect').value === 'custom' ? parseFloat(document.getElementById('manualFerry').value) || 0 : parseFloat(document.getElementById('ferrySelect').value) || 0;
-
+            // Phí trạm thu phí x2 nếu đi khứ hồi trên 1.5 (Tính cả chiều về)
             let totalTollAndFerry = (tollFee + ferryFee) * ((tripMultiplier >= 1.5) ? 2 : 1);
 
             let otherFees = 0;
-            if(document.getElementById('feePark').checked) otherFees += parseFloat(document.getElementById('feePark').value);
-            if(document.getElementById('feeNight').checked) otherFees += parseFloat(document.getElementById('feeNight').value) * (days > 1 ? days - 1 : 1);
+            if(document.getElementById('feePark').checked) otherFees += 20000;
+            if(document.getElementById('feeNight').checked) otherFees += 300000 * (days > 1 ? days - 1 : 1);
 
             let totalFees = totalTollAndFerry + otherFees;
 
+            // Bắt đầu tính toán các cấu phần
             let grossTotal = (distance * tripMultiplier * servicePrice) + totalFees;
             let fuelCost = (distance * tripMultiplier / 100) * fuelConsumption * fuelPrice;
             let driverWage = days > 1 ? 500000 * days : (tripMultiplier > 1.2 ? 500000 : 300000);
 
+            // Làm tròn tổng tiền cho đẹp (Làm tròn lên hàng ngàn)
+            grossTotal = Math.ceil(grossTotal / 1000) * 1000;
+            
             let netProfit = grossTotal - fuelCost - driverWage - totalFees;
 
+            // In ra giao diện với format tiền Việt
             document.getElementById('displayTotal').innerText = grossTotal.toLocaleString('vi-VN') + " đ";
             document.getElementById('costFuel').innerText = fuelCost.toLocaleString('vi-VN') + " đ";
             document.getElementById('costDriver').innerText = driverWage.toLocaleString('vi-VN') + " đ";
