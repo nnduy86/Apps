@@ -19,8 +19,8 @@
         input:focus, select:focus { border-color: var(--neon-blue); box-shadow: 0 0 8px rgba(0, 243, 255, 0.4); }
         
         /* Hộp gợi ý địa điểm */
-        .suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #222; border: 1px solid var(--neon-blue); border-radius: 0 0 6px 6px; max-height: 150px; overflow-y: auto; z-index: 100; display: none; }
-        .suggestion-item { padding: 10px; border-bottom: 1px solid #444; font-size: 0.9rem; cursor: pointer; color: #ddd; }
+        .suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #222; border: 1px solid var(--neon-blue); border-radius: 0 0 6px 6px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.8); }
+        .suggestion-item { padding: 12px 10px; border-bottom: 1px solid #444; font-size: 0.95rem; cursor: pointer; color: #ddd; }
         .suggestion-item:hover, .suggestion-item:active { background: var(--neon-blue); color: #000; }
 
         .row { display: flex; gap: 10px; }
@@ -55,19 +55,18 @@
         
         <label>Điểm Đón:</label>
         <div class="input-group">
-            <input type="text" id="startLoc" placeholder="Nhập địa chỉ đón..." oninput="getSuggestions('startLoc', 'startSug')" autocomplete="off">
+            <input type="text" id="startLoc" placeholder="Nhập địa chỉ đón..." oninput="getSuggestions('startLoc', 'startSug')" onfocus="getSuggestions('startLoc', 'startSug')" autocomplete="off">
             <div id="startSug" class="suggestions"></div>
         </div>
-        <button class="btn-action" style="padding: 8px; font-size: 0.8rem; margin-top: 5px; width: auto;" onclick="getLocation()">📍 Lấy Tọa Độ Hiện Tại</button>
 
         <label>Điểm Đến:</label>
         <div class="input-group">
-            <input type="text" id="endLoc" placeholder="Nhập địa chỉ đến..." oninput="getSuggestions('endLoc', 'endSug')" autocomplete="off">
+            <input type="text" id="endLoc" placeholder="Nhập địa chỉ đến..." oninput="getSuggestions('endLoc', 'endSug')" onfocus="getSuggestions('endLoc', 'endSug')" autocomplete="off">
             <div id="endSug" class="suggestions"></div>
         </div>
         
         <button class="btn-action btn-goong" onclick="autoCalculateDistance()">🗺️ Tự Động Đo Khoảng Cách</button>
-        <div id="loading">Đang kết nối vệ tinh...</div>
+        <div id="loading">Đang tính toán tuyến đường...</div>
 
         <div class="row" style="margin-top: 15px;">
             <div class="col">
@@ -159,39 +158,62 @@
     <script>
         const GOONG_API_KEY = "20EqreM05diMJrpTrzot0VLzKOcrgwFq81rApwxw";
 
-        // TÍNH NĂNG GỢI Ý ĐỊA ĐIỂM (AUTOCOMPLETE)
+        // 1. HÀM TẠO ĐỀ XUẤT (GHIM VỊ TRÍ HIỆN TẠI LÊN ĐẦU)
         let debounceTimer;
         async function getSuggestions(inputId, sugBoxId) {
             clearTimeout(debounceTimer);
-            let val = document.getElementById(inputId).value;
+            let inputEl = document.getElementById(inputId);
+            let val = inputEl.value;
             let sugBox = document.getElementById(sugBoxId);
             
-            if(val.length < 2) { sugBox.style.display = 'none'; return; }
+            // Xóa tọa độ ngầm nếu người dùng gõ thay đổi text
+            inputEl.removeAttribute('data-coords');
 
+            // Xây dựng nút "Vị trí hiện tại" cho ô Điểm Đón
+            let pinnedItem = '';
+            if (inputId === 'startLoc') {
+                pinnedItem = `<div class="suggestion-item" style="color: var(--neon-green); font-weight: bold; border-bottom: 2px solid #444;" onclick="selectCurrentLocation()">
+                                📍 Chọn vị trí hiện tại
+                              </div>`;
+            }
+
+            // Nếu người dùng chưa gõ hoặc gõ ít hơn 2 ký tự
+            if(val.length < 2) { 
+                if (pinnedItem) {
+                    sugBox.innerHTML = pinnedItem;
+                    sugBox.style.display = 'block';
+                } else {
+                    sugBox.style.display = 'none'; 
+                }
+                return; 
+            }
+
+            // Gọi API Goong khi người dùng gõ
             debounceTimer = setTimeout(async () => {
                 try {
                     let res = await fetch(`https://rsapi.goong.io/Place/AutoComplete?input=${encodeURIComponent(val)}&api_key=${GOONG_API_KEY}`);
                     let data = await res.json();
                     
+                    sugBox.innerHTML = pinnedItem; // Chèn nút ghim vào đầu
+                    
                     if(data.predictions && data.predictions.length > 0) {
-                        sugBox.innerHTML = '';
                         data.predictions.forEach(item => {
                             let div = document.createElement('div');
                             div.className = 'suggestion-item';
                             div.innerText = item.description;
                             div.onclick = function() {
-                                document.getElementById(inputId).value = item.description;
+                                inputEl.value = item.description;
                                 sugBox.style.display = 'none';
                             };
                             sugBox.appendChild(div);
                         });
-                        sugBox.style.display = 'block';
                     }
+                    sugBox.style.display = 'block';
                 } catch(e) {}
-            }, 300); // Đợi 300ms sau khi ngừng gõ mới gọi API để tiết kiệm tiền
+            }, 300);
         }
 
-        // Ẩn gợi ý khi click ra ngoài
+        // Ẩn bảng gợi ý khi bấm ra ngoài
         document.addEventListener('click', function(e) {
             if(!e.target.closest('.input-group')) {
                 document.getElementById('startSug').style.display = 'none';
@@ -199,40 +221,72 @@
             }
         });
 
+        // 2. XỬ LÝ KHI BẤM "CHỌN VỊ TRÍ HIỆN TẠI"
+        function selectCurrentLocation() {
+            let startInput = document.getElementById('startLoc');
+            let sugBox = document.getElementById('startSug');
+            
+            sugBox.style.display = 'none';
+            startInput.value = "📍 Vị trí hiện tại (Đang lấy...)"; 
+            
+            if (!navigator.geolocation) {
+                alert("Thiết bị không hỗ trợ định vị!");
+                startInput.value = "";
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    // Hiện chữ trên giao diện
+                    startInput.value = "📍 Vị trí hiện tại"; 
+                    
+                    // Lưu tọa độ thật vào thuộc tính ẩn để đo khoảng cách
+                    startInput.setAttribute('data-coords', `${lat},${lng}`); 
+                },
+                (error) => {
+                    alert("Không thể lấy vị trí. Vui lòng cấp quyền GPS cho ứng dụng!");
+                    startInput.value = "";
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+
         function toggleManual(selectId, inputId) {
             let val = document.getElementById(selectId).value;
             document.getElementById(inputId).style.display = (val === 'custom') ? 'block' : 'none';
         }
 
-        function getLocation() {
-            const startInput = document.getElementById('startLoc');
-            startInput.value = "Đang định vị...";
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => { startInput.value = `${position.coords.latitude},${position.coords.longitude}`; },
-                    (error) => { alert("Vui lòng vào Cài đặt điện thoại -> Bật Vị Trí (GPS) cho ứng dụng này!"); }
-                );
-            }
-        }
-
+        // 3. TỰ ĐỘNG ĐO KHOẢNG CÁCH (XÀI TỌA ĐỘ ẨN NẾU CÓ)
         async function autoCalculateDistance() {
-            const startStr = document.getElementById('startLoc').value;
-            const endStr = document.getElementById('endLoc').value;
+            const startInput = document.getElementById('startLoc');
+            const endInput = document.getElementById('endLoc');
+            
+            const startStr = startInput.value;
+            const endStr = endInput.value;
 
             if(!startStr || !endStr) return alert("Vui lòng nhập Điểm Đón và Điểm Đến!");
             document.getElementById('loading').style.display = 'block';
 
             try {
-                async function getCoords(address) {
+                // Hàm con: Ưu tiên lấy tọa độ ẩn, nếu không có mới đem text đi dịch
+                async function getCoords(address, inputElement) {
+                    if (inputElement.hasAttribute('data-coords')) {
+                        return inputElement.getAttribute('data-coords');
+                    }
+                    
                     if(address.includes(',') && !address.match(/[a-zA-Z]/)) return address; 
+                    
                     let res = await fetch(`https://rsapi.goong.io/geocode?address=${encodeURIComponent(address)}&api_key=${GOONG_API_KEY}`);
                     let data = await res.json();
                     if(data.results && data.results.length > 0) return `${data.results[0].geometry.location.lat},${data.results[0].geometry.location.lng}`;
                     else throw new Error(`Không tìm thấy: ${address}`);
                 }
 
-                let originCoords = await getCoords(startStr);
-                let destCoords = await getCoords(endStr);
+                let originCoords = await getCoords(startStr, startInput);
+                let destCoords = await getCoords(endStr, endInput);
 
                 let routeRes = await fetch(`https://rsapi.goong.io/Direction?origin=${originCoords}&destination=${destCoords}&vehicle=car&api_key=${GOONG_API_KEY}`);
                 let routeData = await routeRes.json();
@@ -241,15 +295,15 @@
                     let distanceKm = (routeData.routes[0].legs[0].distance.value / 1000).toFixed(1);
                     document.getElementById('distance').value = distanceKm;
                     document.getElementById('loading').style.display = 'none';
-                    // ĐÃ XÓA DÒNG BÁO LỖI ALERT Ở ĐÂY
                 } else throw new Error("Không thể vẽ đường!");
 
             } catch (error) {
                 document.getElementById('loading').style.display = 'none';
-                alert("Lỗi Goong API: " + error.message);
+                alert("Lỗi tính quãng đường: " + error.message);
             }
         }
 
+        // 4. TÍNH BÁO GIÁ (GIỮ NGUYÊN CODE CŨ CỦA BẠN)
         function showQuote() {
             let distance = parseFloat(document.getElementById('distance').value);
             if(!distance || distance <= 0) { alert("Vui lòng nhập hoặc đo khoảng cách (KM) trước khi báo giá!"); return; }
