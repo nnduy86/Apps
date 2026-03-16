@@ -3,26 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Taxi Nhơn Trạch 2086 - Báo Giá Pro</title>
+    <title>Taxi Nhơn Trạch 2086 - App Nội Bộ</title>
     <style>
         :root { --neon-blue: #00f3ff; --neon-pink: #ff00ea; --neon-green: #39ff14; --neon-yellow: #fffb00; --neon-red: #ff3333; --dark-bg: #050505; --panel-bg: #111; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--dark-bg); color: #fff; padding: 15px; padding-bottom: 80px; }
         
-        /* BIỂN HIỆU NEON BÁ ĐẠO */
+        /* NÚT MỞ KHÓA PHÒNG KỸ THUẬT ẨN */
+        .btn-unlock { position: absolute; top: 15px; right: 15px; background: transparent; border: none; font-size: 1.2rem; color: #444; cursor: pointer; z-index: 1000; transition: 0.3s;}
+        .btn-unlock.unlocked { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); }
+
+        /* BIỂN HIỆU NEON BÁ ĐẠO TRUNG TÂM */
         .brand-header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 20px 10px;
-            background: linear-gradient(145deg, #111 0%, #000 100%);
-            border-radius: 15px;
-            border: 2px solid var(--neon-blue);
+            text-align: center; margin-bottom: 20px; padding: 25px 10px;
+            background: linear-gradient(145deg, #111 0%, #000 100%); border-radius: 15px;
+            border: 2px solid var(--neon-blue); position: relative; overflow: hidden;
             box-shadow: 0 0 20px rgba(0, 243, 255, 0.2), inset 0 0 15px rgba(0, 243, 255, 0.1);
-            position: relative;
-            overflow: hidden;
         }
-        
-        /* Hiệu ứng chớp sáng Neon đằng sau */
         .brand-header::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: radial-gradient(circle, rgba(0,243,255,0.15) 0%, transparent 60%);
@@ -31,13 +28,8 @@
         @keyframes rotate-glow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .glow-text {
-            position: relative; z-index: 1;
-            color: #ffffff;
-            font-size: 1.8rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
+            position: relative; z-index: 1; color: #ffffff; font-size: 1.9rem; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
             text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue);
             animation: pulse-glow 1.5s infinite alternate;
         }
@@ -47,27 +39,20 @@
         }
 
         .sub-brand {
-            position: relative; z-index: 1;
-            color: var(--neon-pink);
-            font-size: 1.2rem;
-            font-weight: 800;
-            letter-spacing: 2px;
-            margin-bottom: 12px;
+            position: relative; z-index: 1; color: var(--neon-pink); font-size: 1.1rem;
+            font-weight: 800; letter-spacing: 2px; margin-bottom: 12px;
             text-shadow: 0 0 10px rgba(255, 0, 234, 0.5);
         }
 
         .live-status {
-            position: relative; z-index: 1;
-            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
             font-size: 0.85rem; font-weight: bold; color: var(--neon-green);
-            background: rgba(57, 255, 20, 0.1); padding: 6px 15px;
-            border-radius: 20px; border: 1px solid rgba(57, 255, 20, 0.4);
-            box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+            background: rgba(57, 255, 20, 0.1); padding: 6px 15px; border-radius: 20px;
+            border: 1px solid rgba(57, 255, 20, 0.4); box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
         }
         .live-dot {
-            width: 10px; height: 10px; background: var(--neon-green);
-            border-radius: 50%; box-shadow: 0 0 10px var(--neon-green);
-            animation: blink 0.8s infinite;
+            width: 10px; height: 10px; background: var(--neon-green); border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-green); animation: blink 0.8s infinite;
         }
         @keyframes blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.8); } }
 
@@ -78,7 +63,7 @@
         label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 5px; margin-top: 10px; }
         .input-group { position: relative; }
         
-        input[type="search"], input[type="text"], select { width: 100%; padding: 10px; background: #000; border: 1px solid #444; color: #fff; border-radius: 6px; font-size: 1rem; outline: none; transition: 0.3s; }
+        input[type="search"], input[type="text"], input[type="number"], select { width: 100%; padding: 10px; background: #000; border: 1px solid #444; color: #fff; border-radius: 6px; font-size: 1rem; outline: none; transition: 0.3s; }
         input:focus, select:focus { border-color: var(--neon-blue); box-shadow: 0 0 8px rgba(0, 243, 255, 0.4); }
         
         input[type="search"]::-webkit-search-cancel-button {
@@ -91,14 +76,15 @@
         .suggestion-item { padding: 12px 10px; border-bottom: 1px solid #444; font-size: 0.95rem; cursor: pointer; color: #ddd; }
         .suggestion-item:hover, .suggestion-item:active { background: var(--neon-blue); color: #000; }
 
-        .row { display: flex; gap: 8px; }
+        .row { display: flex; gap: 8px; align-items: flex-end;}
         .col { flex: 1; }
 
         .btn-action { background: transparent; border: 1px solid var(--neon-green); color: var(--neon-green); padding: 12px; border-radius: 6px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold; text-shadow: 0 0 5px var(--neon-green); text-transform: uppercase; transition: 0.2s;}
         .btn-action:active { background: var(--neon-green); color: #000; }
         
         .btn-quote { background: linear-gradient(45deg, #ff00ea, #4a00e0); border: none; color: white; font-size: 1.1rem; box-shadow: 0 0 15px rgba(255, 0, 234, 0.5); }
-        .btn-zalo { background: linear-gradient(45deg, #0068ff, #00c6ff); border: none; color: white; font-size: 1.1rem; box-shadow: 0 0 15px rgba(0, 104, 255, 0.5); margin-top: 15px;}
+        .btn-zalo { background: linear-gradient(45deg, #0068ff, #00c6ff); border: none; color: white; font-size: 1.1rem; box-shadow: 0 0 15px rgba(0, 104, 255, 0.5); margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;}
+        .btn-zalo img { width: 22px; height: 22px; filter: brightness(0) invert(1); }
 
         #result-box { display: none; background: linear-gradient(145deg, #1a0014, #00121a); border: 2px solid var(--neon-blue); border-radius: 15px; padding: 20px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.2); margin-top: 20px; animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -108,9 +94,14 @@
         
         #loading { display: none; text-align: center; color: var(--neon-yellow); font-size: 0.9rem; margin-top: 10px; font-style: italic; animation: pulse-loading 1s infinite; }
         @keyframes pulse-loading { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+        /* Style riêng cho placeholder để nó nổi bật hơn khi chạy */
+        input::placeholder { color: #888; font-style: italic; }
     </style>
 </head>
 <body>
+
+    <button class="btn-unlock" id="lock-icon" onclick="toggleTechRoom()">🔒</button>
 
     <div class="brand-header">
         <div class="glow-text">TAXI NHƠN TRẠCH 2086</div>
@@ -121,8 +112,19 @@
         </div>
     </div>
 
+    <div class="card" id="tech-room" style="display: none; border-color: var(--neon-yellow); box-shadow: 0 0 10px rgba(255, 251, 0, 0.2);">
+        <div class="card-title" style="color: var(--neon-yellow);">⚙️ CÀI ĐẶT HẠNG DỊCH VỤ (ADMIN)</div>
+        <label>Chỉnh sửa giá cước nền tảng:</label>
+        <select id="serviceType" onchange="autoUpdateQuote()" style="border-color: var(--neon-yellow);">
+            <option value="13000">Xe Tiêu Chuẩn (13k/km)</option>
+            <option value="15000">Xe Taxi Hãng (15k/km)</option>
+            <option value="11000">Xe Tiện Chuyến (11k/km)</option>
+        </select>
+        <p style="font-size: 0.8rem; color: #888; margin-top: 5px;">* Khách hàng không thể nhìn thấy bảng này. Báo giá tự động áp dụng mốc Xe 7 Chỗ (+3.000đ/km).</p>
+    </div>
+
     <div class="card">
-        <div class="card-title">1. LỘ TRÌNH & THỜI GIAN</div>
+        <div class="card-title">THÔNG TIN CHUYẾN ĐI</div>
         
         <label>Điểm Đón:</label>
         <div class="input-group">
@@ -141,53 +143,29 @@
         <div class="row" style="margin-top: 15px;">
             <div class="col" style="flex: 1.2;">
                 <label>Khoảng Cách:</label>
-                <input type="text" id="distance" placeholder="Máy tự tính" readonly style="background: #222; color: #00f3ff; font-weight: bold; text-align: center;">
+                <input type="text" inputmode="decimal" id="distance" 
+                       style="background: #222; color: #00f3ff; font-weight: bold; text-align: center; transition: 0.3s; white-space: nowrap; overflow: hidden;" 
+                       onfocus="handleDistanceFocus()" 
+                       onblur="handleDistanceBlur()" 
+                       oninput="handleDistanceInput()">
             </div>
-            <div class="col" style="flex: 1.5;">
+            <div class="col" style="flex: 1.2;">
                 <label>Loại Chuyến:</label>
                 <select id="tripType" onchange="autoUpdateQuote()">
                     <option value="1">1 Chiều</option>
-                    <option value="1.5">2 Chiều (Trong buổi)</option>
-                    <option value="1.8">2 Chiều (Cả ngày)</option>
+                    <option value="2">Khứ Hồi (2 chiều)</option>
                 </select>
             </div>
-            <div class="col" style="flex: 1.3;">
-                <label>Lưu đêm:</label>
-                <select id="days" onchange="autoUpdateQuote()">
-                    <option value="1">Về trong ngày</option>
-                    <option value="2">Qua 1 đêm</option>
-                    <option value="3">Qua 2 đêm</option>
-                    <option value="4">Qua 3 đêm</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-title">2. LOẠI XE & MỨC GIÁ CƯỚC</div>
-        <div class="row">
-            <div class="col">
-                <label>Loại Xe:</label>
-                <select id="carType" onchange="autoUpdateQuote()">
-                    <option value="4" data-extra="0">4 Chỗ Gia Đình</option>
-                    <option value="7" data-extra="3000">7 Chỗ (+3.000đ/km)</option>
-                    <option value="16" data-extra="8000">16 Chỗ (+8.000đ/km)</option>
-                </select>
-            </div>
-            <div class="col">
-                <label>Hạng Dịch Vụ:</label>
-                <select id="serviceType" onchange="autoUpdateQuote()">
-                    <option value="13000">Xe Tiêu Chuẩn</option>
-                    <option value="15000">Xe Taxi Hãng</option>
-                    <option value="11000">Xe Tiện Chuyến</option>
-                </select>
+            <div class="col" style="flex: 0.8;">
+                <label>Số ngày đi:</label>
+                <input type="number" id="days" value="1" min="1" onchange="autoUpdateQuote()" style="text-align: center; font-weight: bold;">
             </div>
         </div>
         
         <input type="hidden" id="fuelPrice" value="24000">
         
-        <p style="font-size: 0.8rem; color: #888; margin-top: 15px; font-style: italic; text-align: justify;">
-            * Cước phí báo ra là <strong>Giá Trọn Gói Cuối Cùng</strong>. Trí tuệ nhân tạo (AI) đã tự động nhận diện tuyến đường, tình trạng kẹt xe và cộng sẵn các phụ phí như: Vé qua trạm thu phí, phí cao tốc, bến bãi... Quý khách không phải trả thêm bất kỳ khoản ẩn nào!
+        <p style="font-size: 0.85rem; color: #888; margin-top: 18px; font-style: italic; text-align: justify; line-height: 1.5; border-top: 1px dashed #333; padding-top: 15px;">
+            * Giá cước trên là <strong>Giá Trọn Gói Cuối Cùng</strong> (áp dụng cho dòng xe 7 chỗ rộng rãi). Hệ thống đã tự động tính toán bao gồm toàn bộ các loại phụ phí: cầu đường, cao tốc, bến bãi, lưu đêm... Cam kết không phát sinh thêm chi phí ngoài lộ trình!
         </p>
     </div>
 
@@ -203,17 +181,108 @@
             (Cam kết không phát sinh phụ phí)
         </div>
         
-        <button class="btn-action btn-zalo" onclick="bookViaZalo()">📲 CHỐT GIÁ QUA ZALO NGAY</button>
+        <button class="btn-action btn-zalo" onclick="bookViaZalo()">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Icon_of_Zalo.svg/1024px-Icon_of_Zalo.svg.png" alt="Zalo">
+            CHỐT GIÁ QUA ZALO NGAY
+        </button>
         <button class="btn-action" style="padding: 8px; font-size: 0.9rem; margin-top: 10px; border-color: #555; color: #aaa;" onclick="document.getElementById('result-box').style.display='none'">Đóng lại</button>
     </div>
 
     <script>
         const GOONG_API_KEY = "20EqreM05diMJrpTrzot0VLzKOcrgwFq81rApwxw";
 
+        // 1. BẬT / TẮT PHÒNG KỸ THUẬT (Ổ khóa đóng/mở)
+        function toggleTechRoom() {
+            let techRoom = document.getElementById('tech-room');
+            let lockIcon = document.getElementById('lock-icon');
+            
+            if(techRoom.style.display === 'none') {
+                let pass = prompt("Nhập mật mã kỹ thuật (Dành cho Admin):");
+                if(pass === "2086") { 
+                    techRoom.style.display = 'block';
+                    lockIcon.classList.add('unlocked');
+                    lockIcon.innerText = "🔓"; 
+                } else if(pass !== null) {
+                    alert("Sai mật mã!");
+                }
+            } else {
+                techRoom.style.display = 'none';
+                lockIcon.classList.remove('unlocked');
+                lockIcon.innerText = "🔒"; 
+            }
+        }
+
+        // 2. HIỆU ỨNG CHỮ CHẠY NGANG (MARQUEE) TRONG Ô KHOẢNG CÁCH
+        let isManualDistance = false;
+        let pText = " ✍️ Chạm để nhập số KM hoặc chờ máy tự đo... ";
+        let pIndex = 0;
+        
+        setInterval(() => {
+            let distInput = document.getElementById('distance');
+            // Nếu ô đang trống và không được khách bấm vào -> Chạy chữ mượt mà
+            if(distInput.value === "" && document.activeElement !== distInput) {
+                distInput.placeholder = pText.substring(pIndex) + pText.substring(0, pIndex);
+                pIndex++;
+                if(pIndex >= pText.length) pIndex = 0;
+            } 
+            // Nếu đang bấm vào ô -> Dừng chạy, hiện chữ cố định
+            else if (distInput.value === "" && document.activeElement === distInput) {
+                distInput.placeholder = "Gõ số KM vào đây...";
+            }
+        }, 150);
+
+        // 3. LOGIC MA THUẬT CỦA Ô NHẬP KM
+        function handleDistanceFocus() {
+            let distInput = document.getElementById('distance');
+            // Khi bấm vào, tự xóa chữ " KM" để dễ sửa số
+            if (distInput.value.includes("KM")) {
+                distInput.value = distInput.value.replace(/KM/gi, "").trim();
+            }
+            // Đổi nền sáng lên báo hiệu đang tương tác
+            distInput.style.background = '#000';
+            if(isManualDistance) {
+                distInput.style.color = 'var(--neon-yellow)';
+            } else {
+                distInput.style.color = '#fff';
+            }
+        }
+
+        function handleDistanceBlur() {
+            let distInput = document.getElementById('distance');
+            let val = distInput.value.trim();
+            // Bấm ra ngoài mà có số thì tự chốt số và gắn lại chữ KM
+            if (val !== "" && !val.toLowerCase().includes("km")) {
+                distInput.value = val + " KM";
+                distInput.style.background = '#1a1a1a';
+                distInput.style.color = 'var(--neon-yellow)'; // Chuyển màu vàng xác nhận tự nhập
+            } else if (val === "") {
+                // Trống trơn thì về nền chìm
+                distInput.style.background = '#222';
+            }
+        }
+
+        function handleDistanceInput() {
+            let distInput = document.getElementById('distance');
+            let val = distInput.value.trim();
+            
+            // XÓA SẠCH SỐ -> TỰ ĐỘNG KHÔI PHỤC AUTO ĐO VỆ TINH
+            if(val === "") {
+                isManualDistance = false;
+                distInput.style.background = '#222';
+                distInput.style.color = '#00f3ff';
+                document.getElementById('result-box').style.display = 'none';
+                checkReadyToCalculate(); // Đánh thức vệ tinh Goong
+            } else {
+                // ĐANG GÕ SỐ -> CHUYỂN SANG CHẾ ĐỘ THỦ CÔNG
+                isManualDistance = true;
+                distInput.style.color = 'var(--neon-yellow)';
+                autoUpdateQuote();
+            }
+        }
+
         // TỰ ĐỘNG LẤY GIÁ XĂNG TỪ MÁY CHỦ GOOGLE
         async function autoUpdateFuelPrice() {
             const fuelInput = document.getElementById('fuelPrice');
-            // Link Google của bạn đã được gắn cứng
             const googleApiUrl = "https://script.google.com/macros/s/AKfycbx8uguJw6jxctRipl98Q95IlhvGaWWqeNAwco3ZMi24WSW7S7puiKJGrBuxSjzjGFFsXA/exec"; 
             try {
                 let res = await fetch(googleApiUrl); 
@@ -310,6 +379,9 @@
 
         // ĐO KHOẢNG CÁCH TỰ ĐỘNG
         function checkReadyToCalculate() {
+            // Nếu đang chốt tay thì không tự động ghi đè
+            if(isManualDistance) return;
+
             let start = document.getElementById('startLoc').value;
             let end = document.getElementById('endLoc').value;
             if(start && end && start !== "📍 Vị trí hiện tại (Đang quét...)") {
@@ -318,13 +390,14 @@
         }
 
         async function autoCalculateDistance() {
+            if(isManualDistance) return;
+
             const startInput = document.getElementById('startLoc');
             const endInput = document.getElementById('endLoc');
             const startStr = startInput.value;
             const endStr = endInput.value;
 
             document.getElementById('loading').style.display = 'block';
-            document.getElementById('distance').value = "Đang tính...";
 
             try {
                 async function getCoords(address, inputElement) {
@@ -345,7 +418,11 @@
 
                 if(routeData.routes && routeData.routes.length > 0) {
                     let distanceKm = (routeData.routes[0].legs[0].distance.value / 1000).toFixed(1);
-                    document.getElementById('distance').value = distanceKm.replace('.', ',') + " KM";
+                    let distInput = document.getElementById('distance');
+                    distInput.value = distanceKm.replace('.', ',') + " KM";
+                    distInput.style.color = '#00f3ff'; // Màu xanh lánh: Hệ thống đã đo thành công
+                    distInput.style.background = '#222';
+                    isManualDistance = false;
                     document.getElementById('loading').style.display = 'none';
                     
                     showQuote(); 
@@ -353,12 +430,13 @@
 
             } catch (error) {
                 document.getElementById('loading').style.display = 'none';
-                document.getElementById('distance').value = "Lỗi!";
+                let distInput = document.getElementById('distance');
+                distInput.value = ""; // Xóa trắng để tiếp tục chạy chữ Marquee
             }
         }
 
         function autoUpdateQuote() {
-            if(document.getElementById('result-box').style.display === 'block') {
+            if(document.getElementById('result-box').style.display === 'block' || isManualDistance) {
                 showQuote();
             }
         }
@@ -381,19 +459,26 @@
             }, 16);
         }
 
-        // TÍNH TOÁN BÁO GIÁ CỘNG NGẦM TẤT CẢ PHỤ PHÍ VÀ LÀM TRÒN LÊN 10K
+        // TÍNH TOÁN BÁO GIÁ LÀM TRÒN LÊN 10K
         function showQuote() {
             let distanceStr = document.getElementById('distance').value;
-            if(distanceStr === "" || distanceStr === "Đang tính..." || distanceStr === "Lỗi!") { return; }
+            if(distanceStr === "") { return; }
             
-            let distance = parseFloat(distanceStr.replace(',', '.'));
-            let tripMultiplier = parseFloat(document.getElementById('tripType').value);
-            let baseServicePrice = parseFloat(document.getElementById('serviceType').value);
+            // Xóa sạch chữ "KM" và dấu phẩy để chuyển thành số thực
+            let cleanDistStr = distanceStr.replace(',', '.').replace(/[^\d.]/g, '');
+            let distance = parseFloat(cleanDistStr);
+            if(isNaN(distance) || distance <= 0) return;
+
+            let tripType = document.getElementById('tripType').value; 
             let days = parseInt(document.getElementById('days').value) || 1;
             
-            let carSelect = document.getElementById('carType');
-            let extraPerKm = parseFloat(carSelect.options[carSelect.selectedIndex].getAttribute('data-extra'));
-            let finalServicePrice = baseServicePrice + extraPerKm; 
+            let tripMultiplier = 1;
+            if(tripType === "2") {
+                tripMultiplier = (days === 1) ? 1.5 : 1.8;
+            }
+
+            let baseServicePrice = parseFloat(document.getElementById('serviceType').value); 
+            let finalServicePrice = baseServicePrice + 3000; 
 
             let startStr = document.getElementById('startLoc').value.toLowerCase();
             let endStr = document.getElementById('endLoc').value.toLowerCase();
@@ -417,8 +502,8 @@
                 else estimatedToll = 0;
             }
             
-            estimatedToll = estimatedToll * ((tripMultiplier > 1) ? 2 : 1);
-            let parkingFee = (tripMultiplier > 1 || days > 1 || routeText.includes('sân bay')) ? 20000 : 0;
+            estimatedToll = estimatedToll * ((tripType === "2") ? 2 : 1);
+            let parkingFee = (tripType === "2" || days > 1 || routeText.includes('sân bay')) ? 20000 : 0;
             let overnightFee = (days > 1) ? (days - 1) * 300000 : 0;
             let totalFees = estimatedToll + parkingFee + overnightFee;
 
@@ -430,13 +515,13 @@
             let rushHourText = document.getElementById('rushHourText');
             
             if(isRushHour) {
-                grossTotal = grossTotal * 1.1; // Cộng 10%
+                grossTotal = grossTotal * 1.1; 
                 rushHourText.style.display = 'block';
             } else {
                 rushHourText.style.display = 'none';
             }
 
-            // ĐÂY LÀ THUẬT TOÁN MỚI: LÀM TRÒN LÊN CHỤC NGÀN ĐỒNG (Ví dụ 661k -> 670k)
+            // LÀM TRÒN LÊN HÀNG CHỤC NGÀN ĐỒNG
             grossTotal = Math.ceil(grossTotal / 10000) * 10000;
 
             document.getElementById('result-box').style.display = 'block';
@@ -451,8 +536,8 @@
         function bookViaZalo() {
             let startInput = document.getElementById('startLoc');
             let endInput = document.getElementById('endLoc');
-            let startText = startInput.value;
-            let endText = endInput.value;
+            let startText = startInput.value || "Không rõ";
+            let endText = endInput.value || "Không rõ";
             
             let startCoords = startInput.getAttribute('data-coords');
             let endCoords = endInput.getAttribute('data-coords');
@@ -465,30 +550,38 @@
                 ? "https://www.google.com/maps/search/?api=1&query=" + endCoords 
                 : "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(endText);
 
-            let dist = document.getElementById('distance').value;
-            let price = document.getElementById('displayTotal').getAttribute('data-finalprice'); 
-            let carName = document.getElementById('carType').options[document.getElementById('carType').selectedIndex].text;
-            let tripName = document.getElementById('tripType').options[document.getElementById('tripType').selectedIndex].text;
-            let daysName = document.getElementById('days').options[document.getElementById('days').selectedIndex].text;
+            if(startText === "Không rõ") startMapLink = "Khách không nhập địa chỉ đón";
+            if(endText === "Không rõ") endMapLink = "Khách không nhập địa chỉ đến";
 
-            let msg = "🚕 YÊU CẦU ĐẶT XE MỚI TỪ APP:\n\n" +
+            let dist = document.getElementById('distance').value;
+            if(isManualDistance && !dist.includes("KM") && dist !== "") dist += " KM";
+
+            let price = document.getElementById('displayTotal').getAttribute('data-finalprice'); 
+            let tripName = document.getElementById('tripType').options[document.getElementById('tripType').selectedIndex].text;
+            let days = document.getElementById('days').value;
+            let serviceName = document.getElementById('serviceType').options[document.getElementById('serviceType').selectedIndex].text;
+
+            let timeDesc = (days > 1) ? (days + " Ngày") : "Về trong ngày";
+
+            let msg = "🚕 YÊU CẦU ĐẶT XE TỪ APP:\n\n" +
                       "🟢 ĐIỂM ĐÓN: " + startText + "\n" +
-                      "📍 Link chỉ đường tới Đón:\n" + startMapLink + "\n\n" +
+                      "📍 Chỉ đường Đón:\n" + startMapLink + "\n\n" +
                       "🔴 ĐIỂM ĐẾN: " + endText + "\n" +
-                      "🚩 Link chỉ đường tới Đích:\n" + endMapLink + "\n\n" +
+                      "🚩 Chỉ đường Đích:\n" + endMapLink + "\n\n" +
                       "📏 Cự ly: " + dist + "\n" +
-                      "🚘 Loại xe: " + carName.split('(')[0].trim() + "\n" +
-                      "🔄 Chuyến: " + tripName + "\n" +
-                      "🕒 Lưu xe: " + daysName + "\n\n" +
+                      "🚘 Loại xe: 7 Chỗ Rộng Rãi\n" +
+                      "💎 Dịch vụ: " + serviceName.split('(')[0].trim() + "\n" +
+                      "🔄 Chuyến: " + tripName + " (" + timeDesc + ")\n\n" +
                       "💰 GIÁ KHÁCH ĐÃ CHỐT: " + price;
 
             let zaloLink = "https://zalo.me/0986071012?text=" + encodeURIComponent(msg);
-            let tempLink = document.createElement('a');
-            tempLink.href = zaloLink;
-            tempLink.target = '_blank'; // Ép mở luồng ẩn, không làm app bị trắng
-            document.body.appendChild(tempLink);
-            tempLink.click();
-            document.body.removeChild(tempLink);
+            
+            // TUYỆT CHIÊU CHỐNG TRẮNG MÀN HÌNH BẰNG IFRAME ẨN
+            let iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = zaloLink;
+            document.body.appendChild(iframe);
+            setTimeout(() => { document.body.removeChild(iframe); }, 2000);
         }
     </script>
 </body>
