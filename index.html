@@ -3,31 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Taxi Nhơn Trạch 2086 - Đặt Xe Nhanh</title>
+    <title>Taxi Nhơn Trạch 2086 - Báo Giá Pro</title>
     <style>
-        :root { --neon-blue: #00f3ff; --neon-pink: #ff00ea; --neon-green: #39ff14; --neon-yellow: #fffb00; --neon-red: #ff3333; --dark-bg: #0a0a0a; --panel-bg: #111; }
+        :root { --neon-blue: #00f3ff; --neon-pink: #ff00ea; --neon-green: #39ff14; --neon-yellow: #fffb00; --neon-red: #ff3333; --dark-bg: #050505; --panel-bg: #111; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--dark-bg); color: #fff; padding: 15px; padding-bottom: 80px; }
         
-        /* Đã căn lề trên để nhường chỗ cho Biển hiệu bá đạo */
-        body { background-color: var(--dark-bg); color: #fff; padding: 15px; padding-top: 75px; padding-bottom: 80px; }
-        
-        /* BIỂN HIỆU BÁ ĐẠO - HEADER */
-        .top-branding {
-            position: fixed; top: 0; left: 0; right: 0;
-            background: linear-gradient(180deg, #000000 0%, #111111 100%);
-            border-bottom: 2px solid var(--neon-blue);
-            z-index: 1000; padding: 12px 15px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+        /* BIỂN HIỆU NEON BÁ ĐẠO */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px 10px;
+            background: linear-gradient(145deg, #111 0%, #000 100%);
+            border-radius: 15px;
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2), inset 0 0 15px rgba(0, 243, 255, 0.1);
+            position: relative;
+            overflow: hidden;
         }
-        .brand-logo { font-size: 1.1rem; font-weight: 900; color: #fff; text-shadow: 0 0 5px var(--neon-blue); letter-spacing: 1px;}
-        .brand-logo span { color: var(--neon-pink); }
-        .live-status { font-size: 0.7rem; color: var(--neon-green); display: flex; align-items: center; gap: 6px; font-weight: bold; background: rgba(57, 255, 20, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(57, 255, 20, 0.3);}
-        .live-dot { width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; animation: blink 1s infinite; box-shadow: 0 0 8px var(--neon-green);}
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
-
-        h1 { text-align: center; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin-bottom: 20px; font-size: 1.5rem; text-transform: uppercase; margin-top: 10px;}
         
+        /* Hiệu ứng chớp sáng Neon đằng sau */
+        .brand-header::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(0,243,255,0.15) 0%, transparent 60%);
+            animation: rotate-glow 4s linear infinite; z-index: 0; pointer-events: none;
+        }
+        @keyframes rotate-glow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .glow-text {
+            position: relative; z-index: 1;
+            color: #ffffff;
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue);
+            animation: pulse-glow 1.5s infinite alternate;
+        }
+        @keyframes pulse-glow {
+            0% { text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue), 0 0 30px var(--neon-blue); filter: brightness(1); }
+            100% { text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue), 0 0 60px #fff; filter: brightness(1.3); }
+        }
+
+        .sub-brand {
+            position: relative; z-index: 1;
+            color: var(--neon-pink);
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            text-shadow: 0 0 10px rgba(255, 0, 234, 0.5);
+        }
+
+        .live-status {
+            position: relative; z-index: 1;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 0.85rem; font-weight: bold; color: var(--neon-green);
+            background: rgba(57, 255, 20, 0.1); padding: 6px 15px;
+            border-radius: 20px; border: 1px solid rgba(57, 255, 20, 0.4);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+        }
+        .live-dot {
+            width: 10px; height: 10px; background: var(--neon-green);
+            border-radius: 50%; box-shadow: 0 0 10px var(--neon-green);
+            animation: blink 0.8s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.8); } }
+
+        /* CÁC PHẦN KHUNG GIAO DIỆN */
         .card { background: var(--panel-bg); border: 1px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
         .card-title { color: var(--neon-pink); font-size: 1.1rem; margin-bottom: 10px; border-bottom: 1px dashed #555; padding-bottom: 5px; text-transform: uppercase; font-weight: bold; }
         
@@ -59,21 +103,23 @@
         #result-box { display: none; background: linear-gradient(145deg, #1a0014, #00121a); border: 2px solid var(--neon-blue); border-radius: 15px; padding: 20px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.2); margin-top: 20px; animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        .total-price { font-size: 2.5rem; font-weight: bold; color: var(--neon-green); text-align: center; text-shadow: 0 0 15px var(--neon-green); margin: 5px 0 5px 0; transition: all 0.3s; }
+        .total-price { font-size: 2.8rem; font-weight: 900; color: var(--neon-green); text-align: center; text-shadow: 0 0 20px var(--neon-green); margin: 5px 0 5px 0; transition: all 0.3s; }
         .rush-hour-alert { color: var(--neon-red); text-align: center; font-size: 0.85rem; font-style: italic; display: none; margin-bottom: 10px; text-shadow: 0 0 5px var(--neon-red);}
         
-        #loading { display: none; text-align: center; color: var(--neon-yellow); font-size: 0.9rem; margin-top: 10px; font-style: italic; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        #loading { display: none; text-align: center; color: var(--neon-yellow); font-size: 0.9rem; margin-top: 10px; font-style: italic; animation: pulse-loading 1s infinite; }
+        @keyframes pulse-loading { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
-    <div class="top-branding">
-        <div class="brand-logo">TAXI <span>2086</span></div>
-        <div class="live-status"><div class="live-dot"></div> TỔNG ĐÀI ĐANG TRỰC</div>
+    <div class="brand-header">
+        <div class="glow-text">TAXI NHƠN TRẠCH 2086</div>
+        <div class="sub-brand">BÁO GIÁ TRỌN GÓI</div>
+        <div class="live-status">
+            <div class="live-dot"></div>
+            TỔNG ĐÀI ĐANG TRỰC 24/7
+        </div>
     </div>
-
-    <h1>Báo Giá Trọn Gói</h1>
 
     <div class="card">
         <div class="card-title">1. LỘ TRÌNH & THỜI GIAN</div>
@@ -148,7 +194,7 @@
     <button class="btn-action btn-quote" onclick="showQuote()">💰 TÍNH GIÁ TRỌN GÓI</button>
 
     <div id="result-box">
-        <div style="text-align:center; color:#fff; letter-spacing: 2px;">GIÁ CHUYẾN ĐI CỦA BẠN</div>
+        <div style="text-align:center; color:#fff; letter-spacing: 2px; font-weight: bold;">GIÁ CHUYẾN ĐI CỦA BẠN</div>
         
         <div class="total-price" id="displayTotal">0 đ</div>
         <div id="rushHourText" class="rush-hour-alert">⚡ Đang là giờ cao điểm/kẹt xe (Đã tính phụ phí)</div>
@@ -167,14 +213,13 @@
         // TỰ ĐỘNG LẤY GIÁ XĂNG TỪ MÁY CHỦ GOOGLE
         async function autoUpdateFuelPrice() {
             const fuelInput = document.getElementById('fuelPrice');
+            // Link Google của bạn đã được gắn cứng
             const googleApiUrl = "https://script.google.com/macros/s/AKfycbx8uguJw6jxctRipl98Q95IlhvGaWWqeNAwco3ZMi24WSW7S7puiKJGrBuxSjzjGFFsXA/exec"; 
             try {
-                if(googleApiUrl.includes("script.google.com")) {
-                    let res = await fetch(googleApiUrl); 
-                    let data = await res.json();
-                    if (data.status === "success" && data.price !== "0") {
-                        fuelInput.value = parseInt(data.price, 10);
-                    }
+                let res = await fetch(googleApiUrl); 
+                let data = await res.json();
+                if (data.status === "success" && data.price !== "0") {
+                    fuelInput.value = parseInt(data.price, 10);
                 }
             } catch(e) {}
         }
@@ -318,7 +363,7 @@
             }
         }
 
-        // HIỆU ỨNG NHẢY SỐ 
+        // HIỆU ỨNG NHẢY SỐ SLOT MACHINE
         function animateValue(id, start, end, duration) {
             let obj = document.getElementById(id);
             let range = end - start;
@@ -336,7 +381,7 @@
             }, 16);
         }
 
-        // TÍNH TOÁN BÁO GIÁ CỘNG NGẦM TẤT CẢ
+        // TÍNH TOÁN BÁO GIÁ CỘNG NGẦM TẤT CẢ PHỤ PHÍ VÀ LÀM TRÒN LÊN 10K
         function showQuote() {
             let distanceStr = document.getElementById('distance').value;
             if(distanceStr === "" || distanceStr === "Đang tính..." || distanceStr === "Lỗi!") { return; }
@@ -379,18 +424,20 @@
 
             let grossTotal = (distance * tripMultiplier * finalServicePrice) + totalFees;
 
+            // KIỂM TRA GIỜ CAO ĐIỂM
             let currentHour = new Date().getHours();
             let isRushHour = (currentHour >= 16 && currentHour <= 18) || (currentHour >= 6 && currentHour <= 8);
             let rushHourText = document.getElementById('rushHourText');
             
             if(isRushHour) {
-                grossTotal = grossTotal * 1.1; 
+                grossTotal = grossTotal * 1.1; // Cộng 10%
                 rushHourText.style.display = 'block';
             } else {
                 rushHourText.style.display = 'none';
             }
 
-            grossTotal = Math.ceil(grossTotal / 1000) * 1000;
+            // ĐÂY LÀ THUẬT TOÁN MỚI: LÀM TRÒN LÊN CHỤC NGÀN ĐỒNG (Ví dụ 661k -> 670k)
+            grossTotal = Math.ceil(grossTotal / 10000) * 10000;
 
             document.getElementById('result-box').style.display = 'block';
             animateValue('displayTotal', 0, grossTotal, 800);
@@ -400,7 +447,7 @@
             setTimeout(() => { document.getElementById('result-box').scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 100);
         }
 
-        // CÁCH MỚI TRỊ BỆNH TRẮNG MÀN HÌNH SAU KHI QUAY LẠI TỪ ZALO
+        // TẠO THẺ ẢN ĐỂ BẬT ZALO KHÔNG BỊ TRẮNG MÀN HÌNH
         function bookViaZalo() {
             let startInput = document.getElementById('startLoc');
             let endInput = document.getElementById('endLoc');
@@ -435,11 +482,10 @@
                       "🕒 Lưu xe: " + daysName + "\n\n" +
                       "💰 GIÁ KHÁCH ĐÃ CHỐT: " + price;
 
-            // TẠO THẺ ẢN ĐỂ BẬT ZALO (App không bị chuyển hướng -> Không bị trắng màn hình)
             let zaloLink = "https://zalo.me/0986071012?text=" + encodeURIComponent(msg);
             let tempLink = document.createElement('a');
             tempLink.href = zaloLink;
-            tempLink.target = '_blank';
+            tempLink.target = '_blank'; // Ép mở luồng ẩn, không làm app bị trắng
             document.body.appendChild(tempLink);
             tempLink.click();
             document.body.removeChild(tempLink);
