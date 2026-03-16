@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Taxi Nhơn Trạch 2086 - App Nội Bộ</title>
+    <title>Taxi Nhơn Trạch 2086 - Báo Giá</title>
     <style>
         :root { --neon-blue: #00f3ff; --neon-pink: #ff00ea; --neon-green: #39ff14; --neon-yellow: #fffb00; --neon-red: #ff3333; --dark-bg: #050505; --panel-bg: #111; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--dark-bg); color: #fff; padding: 15px; padding-bottom: 80px; }
         
-        /* NÚT MỞ KHÓA PHÒNG KỸ THUẬT ẨN */
         .btn-unlock { position: absolute; top: 15px; right: 15px; background: transparent; border: none; font-size: 1.2rem; color: #444; cursor: pointer; z-index: 1000; transition: 0.3s;}
         .btn-unlock.unlocked { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); }
 
-        /* BIỂN HIỆU NEON BÁ ĐẠO TRUNG TÂM */
         .brand-header {
             text-align: center; margin-bottom: 20px; padding: 25px 10px;
             background: linear-gradient(145deg, #111 0%, #000 100%); border-radius: 15px;
@@ -56,7 +54,6 @@
         }
         @keyframes blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.8); } }
 
-        /* CÁC PHẦN KHUNG GIAO DIỆN */
         .card { background: var(--panel-bg); border: 1px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
         .card-title { color: var(--neon-pink); font-size: 1.1rem; margin-bottom: 10px; border-bottom: 1px dashed #555; padding-bottom: 5px; text-transform: uppercase; font-weight: bold; }
         
@@ -97,16 +94,19 @@
 
         input::placeholder { color: #888; font-style: italic; }
 
-        /* MODAL MẬT KHẨU CHUYÊN NGHIỆP */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 999999; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-box { background: #111; border: 2px solid var(--neon-blue); padding: 25px; border-radius: 15px; text-align: center; width: 90%; max-width: 320px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); animation: popIn 0.3s ease-out; }
+        .modal-box { background: #111; border: 2px solid var(--neon-blue); padding: 25px; border-radius: 15px; text-align: center; width: 90%; max-width: 330px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); animation: popIn 0.3s ease-out; }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .modal-title { color: var(--neon-blue); margin-bottom: 15px; font-size: 1.2rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
         .modal-input { width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: #fff; border-radius: 8px; text-align: center; font-size: 1.2rem; margin-bottom: 20px; outline: none; transition: 0.3s; }
         .modal-input:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.3); }
+        .modal-message { color: #ddd; font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5; white-space: pre-wrap; }
         .modal-buttons { display: flex; gap: 10px; }
-        .btn-cancel { flex: 1; padding: 12px; background: #333; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .btn-confirm { flex: 1; padding: 12px; background: var(--neon-green); color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 0 10px var(--neon-green); }
+        .btn-cancel { flex: 1; padding: 12px; background: #333; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s;}
+        .btn-cancel:active { background: #555; }
+        .btn-confirm { flex: 1; padding: 12px; background: var(--neon-green); color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 0 10px var(--neon-green); transition: 0.3s;}
+        .btn-confirm:active { transform: scale(0.95); }
+        .btn-zalo-modal { background: linear-gradient(45deg, #0068ff, #00c6ff); color: #fff; border: none; box-shadow: 0 0 10px rgba(0, 104, 255, 0.5); }
     </style>
 </head>
 <body>
@@ -119,6 +119,18 @@
             <div class="modal-buttons">
                 <button class="btn-cancel" onclick="closePassModal()">HỦY</button>
                 <button class="btn-confirm" onclick="checkPass()">MỞ KHÓA</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="alertModal">
+        <div class="modal-box" style="border-color: var(--neon-green); box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);">
+            <div id="alertIcon" style="font-size: 3rem; margin-bottom: 10px; text-shadow: 0 0 15px var(--neon-green);">✅</div>
+            <div class="modal-title" id="alertTitle" style="color: var(--neon-green);">THÀNH CÔNG</div>
+            <div class="modal-message" id="alertMessage">...</div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeAlertModal()">ĐÓNG</button>
+                <button class="btn-confirm btn-zalo-modal" id="btnZaloAction" style="display:none;">MỞ ZALO</button>
             </div>
         </div>
     </div>
@@ -149,7 +161,7 @@
         <label style="color: #00f3ff;">Gửi Link Website cho khách tự đặt xe:</label>
         <button onclick="shareLinkToZalo()" style="background: #0068ff; color: #fff; width: 100%; padding: 12px; border: 1px solid #00c6ff; border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 0 10px rgba(0, 104, 255, 0.5); font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Icon_of_Zalo.svg/1024px-Icon_of_Zalo.svg.png" style="width: 20px; height: 20px; filter: brightness(0) invert(1);" alt="Zalo">
-            COPY LINK & MỞ ZALO GỬI KHÁCH
+            COPY LINK & MỞ ZALO
         </button>
     </div>
 
@@ -221,20 +233,15 @@
     <script>
         const GOONG_API_KEY = "20EqreM05diMJrpTrzot0VLzKOcrgwFq81rApwxw";
 
-        // ==========================================
-        // KHUNG MẬT KHẨU TÙY CHỈNH (THAY THẾ PROMPT CŨ)
-        // ==========================================
         function openPassModal() {
             let techRoom = document.getElementById('tech-room');
             let lockIcon = document.getElementById('lock-icon');
             
-            // Nếu đang đóng thì bật khung nhập Pass
             if(techRoom.style.display === 'none') {
                 document.getElementById('passwordModal').style.display = 'flex';
                 document.getElementById('adminPass').value = '';
                 document.getElementById('adminPass').focus();
             } else {
-                // Đang mở thì khóa lại luôn
                 techRoom.style.display = 'none';
                 lockIcon.classList.remove('unlocked');
                 lockIcon.innerText = "🔒"; 
@@ -254,23 +261,54 @@
                 lockIcon.classList.add('unlocked');
                 lockIcon.innerText = "🔓"; 
             } else {
-                alert("Mật mã không chính xác!");
+                showCustomAlert("CẢNH BÁO", "Mật mã không chính xác!", "error");
                 document.getElementById('adminPass').value = '';
-                document.getElementById('adminPass').focus();
             }
         }
 
-        // Bắt sự kiện nhấn Enter ở ô Pass
         document.getElementById("adminPass").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                checkPass();
-            }
+            if (event.key === "Enter") { event.preventDefault(); checkPass(); }
         });
 
-        // ==========================================
-        // COPY LINK & MỞ ZALO CHO KHÁCH (ĐÃ SỬA LỖI MỞ APP ZALO)
-        // ==========================================
+        function showCustomAlert(title, message, type, zaloMsgData = "") {
+            document.getElementById('alertModal').style.display = 'flex';
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMessage').innerText = message;
+            
+            let btnZalo = document.getElementById('btnZaloAction');
+            let box = document.querySelector('#alertModal .modal-box');
+            let titleEl = document.getElementById('alertTitle');
+            let iconEl = document.getElementById('alertIcon');
+
+            if(type === "error") {
+                box.style.borderColor = "var(--neon-red)";
+                box.style.boxShadow = "0 0 20px rgba(255, 51, 51, 0.3)";
+                titleEl.style.color = "var(--neon-red)";
+                iconEl.innerText = "❌";
+                iconEl.style.textShadow = "0 0 15px var(--neon-red)";
+                btnZalo.style.display = 'none';
+            } 
+            else if (type === "copy_link" || type === "book_zalo") {
+                box.style.borderColor = "var(--neon-green)";
+                box.style.boxShadow = "0 0 20px rgba(57, 255, 20, 0.3)";
+                titleEl.style.color = "var(--neon-green)";
+                iconEl.innerText = (type === "book_zalo") ? "🚕" : "✅";
+                iconEl.style.textShadow = "0 0 15px var(--neon-green)";
+                
+                btnZalo.style.display = 'block';
+                btnZalo.onclick = function() {
+                    // GIẢI PHÁP CHUẨN NHẤT CHO WEB LINK ĐỂ KHÔNG BỊ LỖI
+                    let finalUrl = (type === "copy_link") ? "https://zalo.me/" : "https://zalo.me/0986071012?text=" + encodeURIComponent(zaloMsgData);
+                    window.location.href = finalUrl;
+                    closeAlertModal();
+                };
+            }
+        }
+
+        function closeAlertModal() {
+            document.getElementById('alertModal').style.display = 'none';
+        }
+
         function shareLinkToZalo() {
             let linkWebCuaBan = "https://nnduy86.github.io/BaoGiaTaxi/"; 
             let tinNhan = "🚕 TAXI NHƠN TRẠCH 2086 xin chào!\n👉 Mời quý khách bấm vào link dưới đây để tự chọn điểm đón/đến và xem Báo giá trọn gói:\n\n" 
@@ -284,20 +322,9 @@
             document.execCommand("copy");
             document.body.removeChild(tempInput);
 
-            alert("✅ ĐÃ COPY LINK CỦA BẠN: " + linkWebCuaBan + "\n\nHệ thống sẽ mở Zalo ngay bây giờ. Bạn chỉ cần ấn giữ vào chỗ nhắn tin với khách và chọn 'DÁN' (Paste) là xong.");
-
-            // Lệnh mới ép buộc mở App Zalo (Click ảo)
-            let a = document.createElement('a');
-            a.href = "https://zalo.me/";
-            a.target = "_blank";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            showCustomAlert("ĐÃ COPY THÀNH CÔNG", "Lời chào và Đường Link đã được copy.\n\nBấm nút MỞ ZALO bên dưới, sau đó ấn giữ vào chỗ nhắn tin với khách và chọn 'Dán' (Paste) là xong.", "copy_link");
         }
 
-        // ==========================================
-        // CÁC LOGIC CÒN LẠI (GIỮ NGUYÊN HOÀN HẢO TỪ V8)
-        // ==========================================
         let isManualDistance = false;
         let pText = " ✍️ Chạm để nhập số KM hoặc chờ máy tự đo... ";
         let pIndex = 0;
@@ -342,6 +369,7 @@
         function handleDistanceInput() {
             let distInput = document.getElementById('distance');
             let val = distInput.value.trim();
+            
             if(val === "") {
                 isManualDistance = false;
                 distInput.style.background = '#222';
@@ -429,7 +457,7 @@
             startInput.value = "📍 Vị trí hiện tại (Đang quét...)"; 
             
             if (!navigator.geolocation) {
-                alert("Thiết bị không hỗ trợ định vị!");
+                showCustomAlert("LỖI ĐỊNH VỊ", "Thiết bị không hỗ trợ hoặc chưa cấp quyền GPS!", "error");
                 startInput.value = "";
                 return;
             }
@@ -443,7 +471,7 @@
                     checkReadyToCalculate();
                 },
                 (error) => {
-                    alert("Bạn chưa cấp quyền Vị trí (GPS) cho ứng dụng này!");
+                    showCustomAlert("CHƯA CẤP QUYỀN", "Bạn chưa cấp quyền Vị trí (GPS) cho ứng dụng này!", "error");
                     startInput.value = "";
                 },
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -600,7 +628,6 @@
             setTimeout(() => { document.getElementById('result-box').scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 100);
         }
 
-        // LỆNH MỚI CHO NÚT "CHỐT GIÁ QUA ZALO" CỦA KHÁCH
         function bookViaZalo() {
             let startInput = document.getElementById('startLoc');
             let endInput = document.getElementById('endLoc');
@@ -642,15 +669,7 @@
                       "🔄 Chuyến: " + tripName + " (" + timeDesc + ")\n\n" +
                       "💰 GIÁ KHÁCH ĐÃ CHỐT: " + price;
 
-            let zaloLink = "https://zalo.me/0986071012?text=" + encodeURIComponent(msg);
-            
-            // Lệnh mới ép buộc mở App Zalo cho khách (Click ảo)
-            let a = document.createElement('a');
-            a.href = zaloLink;
-            a.target = "_blank";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            showCustomAlert("SẴN SÀNG CHỐT ĐƠN", "Mọi thông tin chuyến đi đã được chuẩn bị.\n\nBấm nút MỞ ZALO bên dưới để chuyển sang ứng dụng Zalo và gửi tin nhắn cho Tổng đài nhé!", "book_zalo", msg);
         }
     </script>
 </body>
