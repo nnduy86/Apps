@@ -96,11 +96,34 @@
         @keyframes pulse-loading { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
         input::placeholder { color: #888; font-style: italic; }
+
+        /* MODAL MẬT KHẨU CHUYÊN NGHIỆP */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 999999; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-box { background: #111; border: 2px solid var(--neon-blue); padding: 25px; border-radius: 15px; text-align: center; width: 90%; max-width: 320px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); animation: popIn 0.3s ease-out; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-title { color: var(--neon-blue); margin-bottom: 15px; font-size: 1.2rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .modal-input { width: 100%; padding: 12px; background: #000; border: 1px solid #444; color: #fff; border-radius: 8px; text-align: center; font-size: 1.2rem; margin-bottom: 20px; outline: none; transition: 0.3s; }
+        .modal-input:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 243, 255, 0.3); }
+        .modal-buttons { display: flex; gap: 10px; }
+        .btn-cancel { flex: 1; padding: 12px; background: #333; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-confirm { flex: 1; padding: 12px; background: var(--neon-green); color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 0 10px var(--neon-green); }
     </style>
 </head>
 <body>
 
-    <button class="btn-unlock" id="lock-icon" onclick="toggleTechRoom()">🔒</button>
+    <div class="modal-overlay" id="passwordModal">
+        <div class="modal-box">
+            <div style="font-size: 2.5rem; margin-bottom: 5px; text-shadow: 0 0 10px var(--neon-blue);">🔒</div>
+            <div class="modal-title">BẢO MẬT ADMIN</div>
+            <input type="password" inputmode="numeric" id="adminPass" class="modal-input" placeholder="Nhập mật mã...">
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closePassModal()">HỦY</button>
+                <button class="btn-confirm" onclick="checkPass()">MỞ KHÓA</button>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-unlock" id="lock-icon" onclick="openPassModal()">🔒</button>
 
     <div class="brand-header">
         <div class="glow-text">TAXI NHƠN TRẠCH 2086</div>
@@ -199,16 +222,61 @@
         const GOONG_API_KEY = "20EqreM05diMJrpTrzot0VLzKOcrgwFq81rApwxw";
 
         // ==========================================
-        // TÍNH NĂNG MỚI: COPY LINK GITHUB & MỞ ZALO
+        // KHUNG MẬT KHẨU TÙY CHỈNH (THAY THẾ PROMPT CŨ)
+        // ==========================================
+        function openPassModal() {
+            let techRoom = document.getElementById('tech-room');
+            let lockIcon = document.getElementById('lock-icon');
+            
+            // Nếu đang đóng thì bật khung nhập Pass
+            if(techRoom.style.display === 'none') {
+                document.getElementById('passwordModal').style.display = 'flex';
+                document.getElementById('adminPass').value = '';
+                document.getElementById('adminPass').focus();
+            } else {
+                // Đang mở thì khóa lại luôn
+                techRoom.style.display = 'none';
+                lockIcon.classList.remove('unlocked');
+                lockIcon.innerText = "🔒"; 
+            }
+        }
+
+        function closePassModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        function checkPass() {
+            let pass = document.getElementById('adminPass').value;
+            if(pass === "2086") {
+                document.getElementById('passwordModal').style.display = 'none';
+                document.getElementById('tech-room').style.display = 'block';
+                let lockIcon = document.getElementById('lock-icon');
+                lockIcon.classList.add('unlocked');
+                lockIcon.innerText = "🔓"; 
+            } else {
+                alert("Mật mã không chính xác!");
+                document.getElementById('adminPass').value = '';
+                document.getElementById('adminPass').focus();
+            }
+        }
+
+        // Bắt sự kiện nhấn Enter ở ô Pass
+        document.getElementById("adminPass").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                checkPass();
+            }
+        });
+
+        // ==========================================
+        // COPY LINK & MỞ ZALO CHO KHÁCH (ĐÃ SỬA LỖI MỞ APP ZALO)
         // ==========================================
         function shareLinkToZalo() {
             let linkWebCuaBan = "https://nnduy86.github.io/BaoGiaTaxi/"; 
-            
             let tinNhan = "🚕 TAXI NHƠN TRẠCH 2086 xin chào!\n👉 Mời quý khách bấm vào link dưới đây để tự chọn điểm đón/đến và xem Báo giá trọn gói:\n\n" 
                           + linkWebCuaBan + 
                           "\n\n(Chỉ cần bấm là xem giá ngay trên điện thoại, không cần tải App!)";
 
-            // Lệnh Copy tin nhắn vào bộ nhớ tạm của máy
             let tempInput = document.createElement("textarea");
             tempInput.value = tinNhan;
             document.body.appendChild(tempInput);
@@ -218,62 +286,39 @@
 
             alert("✅ ĐÃ COPY LINK CỦA BẠN: " + linkWebCuaBan + "\n\nHệ thống sẽ mở Zalo ngay bây giờ. Bạn chỉ cần ấn giữ vào chỗ nhắn tin với khách và chọn 'DÁN' (Paste) là xong.");
 
-            // Lệnh mở Zalo
-            let iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = "https://zalo.me/";
-            document.body.appendChild(iframe);
-            setTimeout(() => { document.body.removeChild(iframe); }, 2000);
+            // Lệnh mới ép buộc mở App Zalo (Click ảo)
+            let a = document.createElement('a');
+            a.href = "https://zalo.me/";
+            a.target = "_blank";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
 
-        // 1. BẬT / TẮT PHÒNG KỸ THUẬT (Ổ khóa đóng/mở)
-        function toggleTechRoom() {
-            let techRoom = document.getElementById('tech-room');
-            let lockIcon = document.getElementById('lock-icon');
-            
-            if(techRoom.style.display === 'none') {
-                let pass = prompt("Nhập mật mã kỹ thuật (Dành cho Admin):");
-                if(pass === "2086") { 
-                    techRoom.style.display = 'block';
-                    lockIcon.classList.add('unlocked');
-                    lockIcon.innerText = "🔓"; 
-                } else if(pass !== null) {
-                    alert("Sai mật mã!");
-                }
-            } else {
-                techRoom.style.display = 'none';
-                lockIcon.classList.remove('unlocked');
-                lockIcon.innerText = "🔒"; 
-            }
-        }
-
-        // 2. HIỆU ỨNG CHỮ CHẠY NGANG (MARQUEE) TRONG Ô KHOẢNG CÁCH
+        // ==========================================
+        // CÁC LOGIC CÒN LẠI (GIỮ NGUYÊN HOÀN HẢO TỪ V8)
+        // ==========================================
         let isManualDistance = false;
         let pText = " ✍️ Chạm để nhập số KM hoặc chờ máy tự đo... ";
         let pIndex = 0;
         
         setInterval(() => {
             let distInput = document.getElementById('distance');
-            // Nếu ô đang trống và không được khách bấm vào -> Chạy chữ mượt mà
             if(distInput.value === "" && document.activeElement !== distInput) {
                 distInput.placeholder = pText.substring(pIndex) + pText.substring(0, pIndex);
                 pIndex++;
                 if(pIndex >= pText.length) pIndex = 0;
             } 
-            // Nếu đang bấm vào ô -> Dừng chạy, hiện chữ cố định
             else if (distInput.value === "" && document.activeElement === distInput) {
                 distInput.placeholder = "Gõ số KM vào đây...";
             }
         }, 150);
 
-        // 3. LOGIC MA THUẬT CỦA Ô NHẬP KM
         function handleDistanceFocus() {
             let distInput = document.getElementById('distance');
-            // Khi bấm vào, tự xóa chữ " KM" để dễ sửa số
             if (distInput.value.includes("KM")) {
                 distInput.value = distInput.value.replace(/KM/gi, "").trim();
             }
-            // Đổi nền sáng lên báo hiệu đang tương tác
             distInput.style.background = '#000';
             if(isManualDistance) {
                 distInput.style.color = 'var(--neon-yellow)';
@@ -285,13 +330,11 @@
         function handleDistanceBlur() {
             let distInput = document.getElementById('distance');
             let val = distInput.value.trim();
-            // Bấm ra ngoài mà có số thì tự chốt số và gắn lại chữ KM
             if (val !== "" && !val.toLowerCase().includes("km")) {
                 distInput.value = val + " KM";
                 distInput.style.background = '#1a1a1a';
-                distInput.style.color = 'var(--neon-yellow)'; // Chuyển màu vàng xác nhận tự nhập
+                distInput.style.color = 'var(--neon-yellow)'; 
             } else if (val === "") {
-                // Trống trơn thì về nền chìm
                 distInput.style.background = '#222';
             }
         }
@@ -299,23 +342,19 @@
         function handleDistanceInput() {
             let distInput = document.getElementById('distance');
             let val = distInput.value.trim();
-            
-            // XÓA SẠCH SỐ -> TỰ ĐỘNG KHÔI PHỤC AUTO ĐO VỆ TINH
             if(val === "") {
                 isManualDistance = false;
                 distInput.style.background = '#222';
                 distInput.style.color = '#00f3ff';
                 document.getElementById('result-box').style.display = 'none';
-                checkReadyToCalculate(); // Đánh thức vệ tinh Goong
+                checkReadyToCalculate(); 
             } else {
-                // ĐANG GÕ SỐ -> CHUYỂN SANG CHẾ ĐỘ THỦ CÔNG
                 isManualDistance = true;
                 distInput.style.color = 'var(--neon-yellow)';
                 autoUpdateQuote();
             }
         }
 
-        // TỰ ĐỘNG LẤY GIÁ XĂNG TỪ MÁY CHỦ GOOGLE
         async function autoUpdateFuelPrice() {
             const fuelInput = document.getElementById('fuelPrice');
             const googleApiUrl = "https://script.google.com/macros/s/AKfycbx8uguJw6jxctRipl98Q95IlhvGaWWqeNAwco3ZMi24WSW7S7puiKJGrBuxSjzjGFFsXA/exec"; 
@@ -329,7 +368,6 @@
         }
         document.addEventListener('DOMContentLoaded', autoUpdateFuelPrice);
 
-        // GHIM VỊ TRÍ & ĐỊA CHỈ (AUTOCOMPLETE)
         let debounceTimer;
         async function getSuggestions(inputId, sugBoxId) {
             clearTimeout(debounceTimer);
@@ -412,7 +450,6 @@
             );
         }
 
-        // ĐO KHOẢNG CÁCH TỰ ĐỘNG
         function checkReadyToCalculate() {
             if(isManualDistance) return;
 
@@ -432,6 +469,8 @@
             const endStr = endInput.value;
 
             document.getElementById('loading').style.display = 'block';
+            document.getElementById('distance').value = ""; 
+            document.getElementById('distance').placeholder = "Đang tính toán...";
 
             try {
                 async function getCoords(address, inputElement) {
@@ -475,7 +514,6 @@
             }
         }
 
-        // HIỆU ỨNG NHẢY SỐ SLOT MACHINE
         function animateValue(id, start, end, duration) {
             let obj = document.getElementById(id);
             let range = end - start;
@@ -493,7 +531,6 @@
             }, 16);
         }
 
-        // TÍNH TOÁN BÁO GIÁ LÀM TRÒN LÊN 10K
         function showQuote() {
             let distanceStr = document.getElementById('distance').value;
             if(distanceStr === "") { return; }
@@ -542,7 +579,6 @@
 
             let grossTotal = (distance * tripMultiplier * finalServicePrice) + totalFees;
 
-            // KIỂM TRA GIỜ CAO ĐIỂM
             let currentHour = new Date().getHours();
             let isRushHour = (currentHour >= 16 && currentHour <= 18) || (currentHour >= 6 && currentHour <= 8);
             let rushHourText = document.getElementById('rushHourText');
@@ -554,7 +590,6 @@
                 rushHourText.style.display = 'none';
             }
 
-            // LÀM TRÒN LÊN HÀNG CHỤC NGÀN ĐỒNG
             grossTotal = Math.ceil(grossTotal / 10000) * 10000;
 
             document.getElementById('result-box').style.display = 'block';
@@ -565,7 +600,7 @@
             setTimeout(() => { document.getElementById('result-box').scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 100);
         }
 
-        // TẠO THẺ ẢN ĐỂ BẬT ZALO KHÔNG BỊ TRẮNG MÀN HÌNH
+        // LỆNH MỚI CHO NÚT "CHỐT GIÁ QUA ZALO" CỦA KHÁCH
         function bookViaZalo() {
             let startInput = document.getElementById('startLoc');
             let endInput = document.getElementById('endLoc');
@@ -609,12 +644,13 @@
 
             let zaloLink = "https://zalo.me/0986071012?text=" + encodeURIComponent(msg);
             
-            // TUYỆT CHIÊU CHỐNG TRẮNG MÀN HÌNH BẰNG IFRAME ẨN
-            let iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = zaloLink;
-            document.body.appendChild(iframe);
-            setTimeout(() => { document.body.removeChild(iframe); }, 2000);
+            // Lệnh mới ép buộc mở App Zalo cho khách (Click ảo)
+            let a = document.createElement('a');
+            a.href = zaloLink;
+            a.target = "_blank";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
     </script>
 </body>
