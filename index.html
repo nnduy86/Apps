@@ -3,12 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bảng Giá Xe Dịch Vụ Pro - Neon</title>
+    <title>Taxi Nhơn Trạch 2086 - Đặt Xe Nhanh</title>
     <style>
         :root { --neon-blue: #00f3ff; --neon-pink: #ff00ea; --neon-green: #39ff14; --neon-yellow: #fffb00; --neon-red: #ff3333; --dark-bg: #0a0a0a; --panel-bg: #111; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--dark-bg); color: #fff; padding: 15px; padding-bottom: 80px; }
-        h1 { text-align: center; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin-bottom: 20px; font-size: 1.5rem; text-transform: uppercase; }
+        
+        /* Đã căn lề trên để nhường chỗ cho Biển hiệu bá đạo */
+        body { background-color: var(--dark-bg); color: #fff; padding: 15px; padding-top: 75px; padding-bottom: 80px; }
+        
+        /* BIỂN HIỆU BÁ ĐẠO - HEADER */
+        .top-branding {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: linear-gradient(180deg, #000000 0%, #111111 100%);
+            border-bottom: 2px solid var(--neon-blue);
+            z-index: 1000; padding: 12px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+        }
+        .brand-logo { font-size: 1.1rem; font-weight: 900; color: #fff; text-shadow: 0 0 5px var(--neon-blue); letter-spacing: 1px;}
+        .brand-logo span { color: var(--neon-pink); }
+        .live-status { font-size: 0.7rem; color: var(--neon-green); display: flex; align-items: center; gap: 6px; font-weight: bold; background: rgba(57, 255, 20, 0.1); padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(57, 255, 20, 0.3);}
+        .live-dot { width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; animation: blink 1s infinite; box-shadow: 0 0 8px var(--neon-green);}
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+
+        h1 { text-align: center; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin-bottom: 20px; font-size: 1.5rem; text-transform: uppercase; margin-top: 10px;}
         
         .card { background: var(--panel-bg); border: 1px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
         .card-title { color: var(--neon-pink); font-size: 1.1rem; margin-bottom: 10px; border-bottom: 1px dashed #555; padding-bottom: 5px; text-transform: uppercase; font-weight: bold; }
@@ -49,6 +67,11 @@
     </style>
 </head>
 <body>
+
+    <div class="top-branding">
+        <div class="brand-logo">TAXI <span>2086</span></div>
+        <div class="live-status"><div class="live-dot"></div> TỔNG ĐÀI ĐANG TRỰC</div>
+    </div>
 
     <h1>Báo Giá Trọn Gói</h1>
 
@@ -144,7 +167,7 @@
         // TỰ ĐỘNG LẤY GIÁ XĂNG TỪ MÁY CHỦ GOOGLE
         async function autoUpdateFuelPrice() {
             const fuelInput = document.getElementById('fuelPrice');
-            const googleApiUrl = "ĐIỀN_LINK_CỦA_BẠN_VÀO_ĐÂY"; 
+            const googleApiUrl = "https://script.google.com/macros/s/AKfycbx8uguJw6jxctRipl98Q95IlhvGaWWqeNAwco3ZMi24WSW7S7puiKJGrBuxSjzjGFFsXA/exec"; 
             try {
                 if(googleApiUrl.includes("script.google.com")) {
                     let res = await fetch(googleApiUrl); 
@@ -240,7 +263,7 @@
             );
         }
 
-        // ĐO KHOẢNG CÁCH TỰ ĐỘNG KHI ĐỦ DỮ LIỆU
+        // ĐO KHOẢNG CÁCH TỰ ĐỘNG
         function checkReadyToCalculate() {
             let start = document.getElementById('startLoc').value;
             let end = document.getElementById('endLoc').value;
@@ -280,7 +303,7 @@
                     document.getElementById('distance').value = distanceKm.replace('.', ',') + " KM";
                     document.getElementById('loading').style.display = 'none';
                     
-                    showQuote(); // Tính xong KM tự nhảy hiển thị Giá
+                    showQuote(); 
                 } else throw new Error("Không thể vẽ đường!");
 
             } catch (error) {
@@ -295,7 +318,7 @@
             }
         }
 
-        // HIỆU ỨNG NHẢY SỐ (SLOT MACHINE) BÁ ĐẠO
+        // HIỆU ỨNG NHẢY SỐ 
         function animateValue(id, start, end, duration) {
             let obj = document.getElementById(id);
             let range = end - start;
@@ -323,16 +346,14 @@
             let baseServicePrice = parseFloat(document.getElementById('serviceType').value);
             let days = parseInt(document.getElementById('days').value) || 1;
             
-            // LẤY GIÁ THEO LOẠI XE (Đã khắc phục lỗi đồng giá 4c và 7c)
             let carSelect = document.getElementById('carType');
             let extraPerKm = parseFloat(carSelect.options[carSelect.selectedIndex].getAttribute('data-extra'));
-            let finalServicePrice = baseServicePrice + extraPerKm; // Xe càng to cộng thêm tiền
+            let finalServicePrice = baseServicePrice + extraPerKm; 
 
             let startStr = document.getElementById('startLoc').value.toLowerCase();
             let endStr = document.getElementById('endLoc').value.toLowerCase();
             let routeText = startStr + " " + endStr;
 
-            // 1. TỰ ĐỘNG CỘNG NGẦM PHÍ CẦU ĐƯỜNG
             let estimatedToll = 0;
             if (routeText.includes('sân bay') || routeText.includes('tân sơn nhất') || routeText.includes('tsn')) {
                 estimatedToll = 40000;
@@ -356,35 +377,30 @@
             let overnightFee = (days > 1) ? (days - 1) * 300000 : 0;
             let totalFees = estimatedToll + parkingFee + overnightFee;
 
-            // 2. TÍNH TOÁN KẾT QUẢ CUỐI CÙNG
             let grossTotal = (distance * tripMultiplier * finalServicePrice) + totalFees;
 
-            // 3. AI PHÂN TÍCH GIỜ CAO ĐIỂM (Tính năng siêu việt)
             let currentHour = new Date().getHours();
             let isRushHour = (currentHour >= 16 && currentHour <= 18) || (currentHour >= 6 && currentHour <= 8);
             let rushHourText = document.getElementById('rushHourText');
             
             if(isRushHour) {
-                grossTotal = grossTotal * 1.1; // Cộng thêm 10% phí kẹt xe
+                grossTotal = grossTotal * 1.1; 
                 rushHourText.style.display = 'block';
             } else {
                 rushHourText.style.display = 'none';
             }
 
-            // Làm tròn tổng tiền (Làm tròn lên hàng ngàn)
             grossTotal = Math.ceil(grossTotal / 1000) * 1000;
 
-            // GỌI HIỆU ỨNG CHẠY SỐ TỪ 0 LÊN GIÁ TRỊ THẬT TRONG 0.8 GIÂY
             document.getElementById('result-box').style.display = 'block';
             animateValue('displayTotal', 0, grossTotal, 800);
             
-            // Lưu lại giá cuối cùng để gửi Zalo
             document.getElementById('displayTotal').setAttribute('data-finalprice', grossTotal.toLocaleString('vi-VN') + " đ");
 
             setTimeout(() => { document.getElementById('result-box').scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 100);
         }
 
-        // CHUYỂN TOÀN BỘ QUA ZALO CÙNG LINK GOOGLE MAPS
+        // CÁCH MỚI TRỊ BỆNH TRẮNG MÀN HÌNH SAU KHI QUAY LẠI TỪ ZALO
         function bookViaZalo() {
             let startInput = document.getElementById('startLoc');
             let endInput = document.getElementById('endLoc');
@@ -403,7 +419,6 @@
                 : "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(endText);
 
             let dist = document.getElementById('distance').value;
-            // Lấy giá đã format từ attribute ngầm
             let price = document.getElementById('displayTotal').getAttribute('data-finalprice'); 
             let carName = document.getElementById('carType').options[document.getElementById('carType').selectedIndex].text;
             let tripName = document.getElementById('tripType').options[document.getElementById('tripType').selectedIndex].text;
@@ -420,8 +435,14 @@
                       "🕒 Lưu xe: " + daysName + "\n\n" +
                       "💰 GIÁ KHÁCH ĐÃ CHỐT: " + price;
 
-            // Mở link Zalo, đoạn code Java trong Sketchware sẽ chụp link này và bật ứng dụng Zalo lên
-            window.location.href = "https://zalo.me/0986071012?text=" + encodeURIComponent(msg);
+            // TẠO THẺ ẢN ĐỂ BẬT ZALO (App không bị chuyển hướng -> Không bị trắng màn hình)
+            let zaloLink = "https://zalo.me/0986071012?text=" + encodeURIComponent(msg);
+            let tempLink = document.createElement('a');
+            tempLink.href = zaloLink;
+            tempLink.target = '_blank';
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
         }
     </script>
 </body>
