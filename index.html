@@ -95,7 +95,6 @@
         #loading { display: none; text-align: center; color: var(--neon-yellow); font-size: 0.9rem; margin-top: 10px; font-style: italic; animation: pulse-loading 1s infinite; }
         @keyframes pulse-loading { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        /* Style riêng cho placeholder để nó nổi bật hơn khi chạy */
         input::placeholder { color: #888; font-style: italic; }
     </style>
 </head>
@@ -121,6 +120,14 @@
             <option value="11000">Xe Tiện Chuyến (11k/km)</option>
         </select>
         <p style="font-size: 0.8rem; color: #888; margin-top: 5px;">* Khách hàng không thể nhìn thấy bảng này. Báo giá tự động áp dụng mốc Xe 7 Chỗ (+3.000đ/km).</p>
+
+        <hr style="border-top: 1px dashed #555; margin: 15px 0;">
+        
+        <label style="color: #00f3ff;">Gửi Link Website cho khách tự đặt xe:</label>
+        <button onclick="shareLinkToZalo()" style="background: #0068ff; color: #fff; width: 100%; padding: 12px; border: 1px solid #00c6ff; border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 0 10px rgba(0, 104, 255, 0.5); font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Icon_of_Zalo.svg/1024px-Icon_of_Zalo.svg.png" style="width: 20px; height: 20px; filter: brightness(0) invert(1);" alt="Zalo">
+            COPY LINK & MỞ ZALO GỬI KHÁCH
+        </button>
     </div>
 
     <div class="card">
@@ -190,6 +197,34 @@
 
     <script>
         const GOONG_API_KEY = "20EqreM05diMJrpTrzot0VLzKOcrgwFq81rApwxw";
+
+        // ==========================================
+        // TÍNH NĂNG MỚI: COPY LINK GITHUB & MỞ ZALO
+        // ==========================================
+        function shareLinkToZalo() {
+            let linkWebCuaBan = "https://nnduy86.github.io/BaoGiaTaxi/"; 
+            
+            let tinNhan = "🚕 TAXI NHƠN TRẠCH 2086 xin chào!\n👉 Mời quý khách bấm vào link dưới đây để tự chọn điểm đón/đến và xem Báo giá trọn gói:\n\n" 
+                          + linkWebCuaBan + 
+                          "\n\n(Chỉ cần bấm là xem giá ngay trên điện thoại, không cần tải App!)";
+
+            // Lệnh Copy tin nhắn vào bộ nhớ tạm của máy
+            let tempInput = document.createElement("textarea");
+            tempInput.value = tinNhan;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            alert("✅ ĐÃ COPY LINK CỦA BẠN: " + linkWebCuaBan + "\n\nHệ thống sẽ mở Zalo ngay bây giờ. Bạn chỉ cần ấn giữ vào chỗ nhắn tin với khách và chọn 'DÁN' (Paste) là xong.");
+
+            // Lệnh mở Zalo
+            let iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = "https://zalo.me/";
+            document.body.appendChild(iframe);
+            setTimeout(() => { document.body.removeChild(iframe); }, 2000);
+        }
 
         // 1. BẬT / TẮT PHÒNG KỸ THUẬT (Ổ khóa đóng/mở)
         function toggleTechRoom() {
@@ -379,7 +414,6 @@
 
         // ĐO KHOẢNG CÁCH TỰ ĐỘNG
         function checkReadyToCalculate() {
-            // Nếu đang chốt tay thì không tự động ghi đè
             if(isManualDistance) return;
 
             let start = document.getElementById('startLoc').value;
@@ -420,7 +454,7 @@
                     let distanceKm = (routeData.routes[0].legs[0].distance.value / 1000).toFixed(1);
                     let distInput = document.getElementById('distance');
                     distInput.value = distanceKm.replace('.', ',') + " KM";
-                    distInput.style.color = '#00f3ff'; // Màu xanh lánh: Hệ thống đã đo thành công
+                    distInput.style.color = '#00f3ff'; 
                     distInput.style.background = '#222';
                     isManualDistance = false;
                     document.getElementById('loading').style.display = 'none';
@@ -431,7 +465,7 @@
             } catch (error) {
                 document.getElementById('loading').style.display = 'none';
                 let distInput = document.getElementById('distance');
-                distInput.value = ""; // Xóa trắng để tiếp tục chạy chữ Marquee
+                distInput.value = ""; 
             }
         }
 
@@ -464,7 +498,6 @@
             let distanceStr = document.getElementById('distance').value;
             if(distanceStr === "") { return; }
             
-            // Xóa sạch chữ "KM" và dấu phẩy để chuyển thành số thực
             let cleanDistStr = distanceStr.replace(',', '.').replace(/[^\d.]/g, '');
             let distance = parseFloat(cleanDistStr);
             if(isNaN(distance) || distance <= 0) return;
