@@ -45,8 +45,8 @@
             font-size: 1.1rem; box-shadow: 0 0 15px rgba(255, 0, 234, 0.5); 
         }
 
-        .quick-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-        .tag-btn { background: #1a1a1a; border: 1px solid #555; color: #00f3ff; font-size: 0.75rem; padding: 5px 8px; border-radius: 15px; cursor: pointer; transition: 0.2s;}
+        .quick-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .tag-btn { background: #1a1a1a; border: 1px solid #555; color: #00f3ff; font-size: 0.75rem; padding: 6px 10px; border-radius: 15px; cursor: pointer; transition: 0.2s;}
         .tag-btn:active { background: #00f3ff; color: #000; }
         .tag-clear { color: #ff5252; border-color: #ff5252; }
         .tag-clear:active { background: #ff5252; color: #fff; }
@@ -59,6 +59,21 @@
         .highlight { color: var(--neon-blue); font-weight: bold; }
         
         #loading { display: none; text-align: center; color: var(--neon-yellow); font-size: 0.9rem; margin-top: 10px; font-style: italic; }
+
+        /* Giao diện Popup Cài đặt */
+        #tollModal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: #111; border: 2px solid var(--neon-blue); padding: 20px; 
+            border-radius: 15px; width: 92%; max-height: 85vh; overflow-y: auto; box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+        }
+        .modal-item {
+            display: flex; gap: 8px; background: #222; padding: 10px; border-radius: 8px; align-items: center; margin-bottom: 8px; border: 1px solid #333;
+        }
+        .modal-item input[type="text"] { flex: 2; border-color: #555; }
+        .modal-item input[type="number"] { flex: 1.2; border-color: #555; color: var(--neon-green); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -122,7 +137,7 @@
         
         <label style="display: flex; justify-content: space-between;">
             Giá Xăng/Dầu (VNĐ/Lít): 
-            <span style="color:var(--neon-green); cursor:pointer;" onclick="autoUpdateFuelPrice()">⚡ Lấy Giá Live</span>
+            <span style="color:var(--neon-green); cursor:pointer;" onclick="autoUpdateFuelPrice()">⚡ Lấy Giá Nhanh</span>
         </label>
         <input type="text" id="fuelPrice" oninput="formatCurrency(this)" value="24.000">
     </div>
@@ -130,15 +145,14 @@
     <div class="card">
         <div class="card-title">3. PHỤ PHÍ LỘ TRÌNH (CỘNG DỒN)</div>
         
-        <label>Tổng Phí Cầu Đường / ETC (VNĐ):</label>
-        <input type="text" id="tollFee" placeholder="Nhập hoặc chọn bên dưới..." oninput="formatCurrency(this)" value="0">
-        <div class="quick-tags">
-            <span class="tag-btn" onclick="addMoney('tollFee', 39000)">+ LT (39k)</span>
-            <span class="tag-btn" onclick="addMoney('tollFee', 98000)">+ Dầu Giây (98k)</span>
-            <span class="tag-btn" onclick="addMoney('tollFee', 78000)">+ Phan Thiết (78k)</span>
-            <span class="tag-btn" onclick="addMoney('tollFee', 103000)">+ Trung Lương (103k)</span>
-            <span class="tag-btn tag-clear" onclick="clearMoney('tollFee')">❌ Xóa trắng</span>
-        </div>
+        <label style="display: flex; justify-content: space-between; align-items: center;">
+            Tổng Phí Cầu Đường / ETC:
+            <span style="color:var(--neon-blue); cursor:pointer; font-weight:bold;" onclick="openTollSettings()">⚙️ Sửa bảng giá</span>
+        </label>
+        
+        <input type="text" id="tollFee" placeholder="Nhập tiền hoặc chọn bên dưới..." oninput="formatCurrency(this)" value="0">
+        
+        <div class="quick-tags" id="dynamicTollTags"></div>
 
         <label style="margin-top: 15px;">Tổng Vé Phà / Qua Đò (VNĐ):</label>
         <input type="text" id="ferryFee" placeholder="Nhập hoặc chọn bên dưới..." oninput="formatCurrency(this)" value="0">
@@ -174,9 +188,103 @@
         <button class="btn-action" style="padding: 8px; font-size: 0.9rem; margin-top: 15px;" onclick="document.getElementById('result-box').style.display='none'">Đóng Báo Giá</button>
     </div>
 
+    <div id="tollModal">
+        <div class="modal-content">
+            <h3 style="color:var(--neon-pink); text-align:center; margin-bottom:5px;">BỘ NHỚ TRẠM THU PHÍ</h3>
+            <p style="text-align:center; font-size:0.8rem; color:#aaa; margin-bottom:15px;">* Trạm nào để giá 0 sẽ tự động ẩn đi.</p>
+            
+            <div id="tollSettingsList">
+                </div>
+            
+            <button class="btn-action" style="margin-top:20px; box-shadow: 0 0 10px var(--neon-green);" onclick="saveTollSettings()">💾 LƯU LẠI VĨNH VIỄN</button>
+            <button class="btn-action" style="border-color:#ff5252; color:#ff5252;" onclick="document.getElementById('tollModal').style.display='none'">❌ HỦY</button>
+        </div>
+    </div>
+
     <script>
         const GOONG_API_KEY = "20EqreM05diMJrpTrzot0VLzKOcrgwFq81rApwxw";
 
+        // ==========================================
+        // TÍNH NĂNG BỘ NHỚ CAO TỐC VĨNH VIỄN (LOCALSTORAGE)
+        // ==========================================
+        
+        // Danh sách mặc định lúc mới cài app (Bạn có thể đổi tên thoải mái)
+        const defaultTolls = [
+            { id: 't1', name: 'Cao tốc Long Thành', price: 39000 },
+            { id: 't2', name: 'Dầu Giây - Phan Thiết', price: 78000 },
+            { id: 't3', name: 'Phan Thiết - Vĩnh Hảo', price: 130000 },
+            { id: 't4', name: 'Cao tốc Trung Lương', price: 103000 },
+            { id: 't5', name: 'Trung Lương - Mỹ Thuận', price: 108000 },
+            { id: 't6', name: 'Mỹ Thuận - Cần Thơ', price: 125000 },
+            { id: 't7', name: 'Trạm Xa lộ Hà Nội', price: 25000 },
+            { id: 't8', name: 'Trạm Quốc Lộ 51', price: 20000 },
+            { id: 't9', name: 'Tuyến tránh Biên Hòa', price: 35000 },
+            { id: 't10', name: 'Trạm Tùy Chọn 1', price: 0 },
+            { id: 't11', name: 'Trạm Tùy Chọn 2', price: 0 },
+            { id: 't12', name: 'Trạm Tùy Chọn 3', price: 0 },
+            { id: 't13', name: 'Trạm Tùy Chọn 4', price: 0 },
+            { id: 't14', name: 'Trạm Tùy Chọn 5', price: 0 }
+        ];
+
+        // 1. Hàm vẽ các nút cộng tiền ra ngoài màn hình chính
+        function renderQuickTags() {
+            // Lấy dữ liệu từ bộ nhớ điện thoại (nếu chưa có thì xài bản mặc định)
+            let savedData = JSON.parse(localStorage.getItem('savedTollsData')) || defaultTolls;
+            let container = document.getElementById('dynamicTollTags');
+            let html = '';
+            
+            savedData.forEach(item => {
+                if (item.price > 0) {
+                    // Cắt gọn giá (Ví dụ: 39000 -> 39k)
+                    let shortPrice = (item.price / 1000) + 'k';
+                    html += `<span class="tag-btn" onclick="addMoney('tollFee', ${item.price})">+ ${item.name} (${shortPrice})</span>`;
+                }
+            });
+            // Thêm nút xóa
+            html += `<span class="tag-btn tag-clear" onclick="clearMoney('tollFee')">❌ Xóa trắng</span>`;
+            container.innerHTML = html;
+        }
+
+        // 2. Mở bảng cài đặt và đổ dữ liệu vào ô nhập
+        function openTollSettings() {
+            let savedData = JSON.parse(localStorage.getItem('savedTollsData')) || defaultTolls;
+            let listContainer = document.getElementById('tollSettingsList');
+            let html = '';
+            
+            savedData.forEach(item => {
+                html += `
+                <div class="modal-item">
+                    <input type="text" id="name_${item.id}" value="${item.name}" placeholder="Tên trạm...">
+                    <input type="number" id="price_${item.id}" value="${item.price}" placeholder="Giá VNĐ">
+                </div>`;
+            });
+            
+            listContainer.innerHTML = html;
+            document.getElementById('tollModal').style.display = 'flex';
+        }
+
+        // 3. Lưu dữ liệu bạn vừa sửa vào điện thoại
+        function saveTollSettings() {
+            let savedData = JSON.parse(localStorage.getItem('savedTollsData')) || defaultTolls;
+            
+            savedData.forEach(item => {
+                item.name = document.getElementById('name_' + item.id).value;
+                item.price = parseInt(document.getElementById('price_' + item.id).value) || 0;
+            });
+            
+            // Ép vào bộ nhớ máy
+            localStorage.setItem('savedTollsData', JSON.stringify(savedData));
+            
+            // Vẽ lại các nút ở màn hình ngoài
+            renderQuickTags();
+            document.getElementById('tollModal').style.display = 'none';
+            alert("Đã lưu bảng giá cao tốc vĩnh viễn vào thiết bị của bạn!");
+        }
+
+
+        // ==========================================
+        // CÔNG CỤ XỬ LÝ DẤU CHẤM HÀNG NGÀN
+        // ==========================================
         function formatCurrency(inputElement) {
             let val = inputElement.value.replace(/\D/g, '');
             if(val === '') { inputElement.value = ''; return; }
@@ -199,29 +307,31 @@
             document.getElementById(inputId).value = "0";
         }
 
-
         // ==========================================
-        // LẤY GIÁ XĂNG TỐC ĐỘ "TÍCH ĐIỆN" BẰNG GOOGLE API RIÊNG
+        // LẤY GIÁ XĂNG TỪ MÁY CHỦ GOOGLE CỦA BẠN
         // ==========================================
         async function autoUpdateFuelPrice() {
             const fuelInput = document.getElementById('fuelPrice');
             const originalValue = fuelInput.value;
             
-            // Đổi text để báo hiệu đang chạy
-            fuelInput.value = "Đang lấy giá..."; 
+            fuelInput.value = "Đang kết nối..."; 
             
-            // Link API máy chủ Google của bạn
-            const googleApiUrl = "https://script.google.com/macros/s/AKfycbx8uguJw6jxctRipl98Q95IlhvGaWWqeNAwco3ZMi24WSW7S7puiKJGrBuxSjzjGFFsXA/exec"; 
+            // ⚠️ CHÚ Ý: DÁN LẠI ĐƯỜNG LINK GOOGLE CỦA BẠN VÀO ĐÂY NHÉ:
+            const googleApiUrl = "ĐIỀN_LINK_CỦA_BẠN_VÀO_ĐÂY"; 
             
+            if (googleApiUrl === "ĐIỀN_LINK_CỦA_BẠN_VÀO_ĐÂY") {
+                fuelInput.value = originalValue;
+                return;
+            }
+
             try {
-                // Tải trực tiếp từ máy chủ Google
                 let res = await fetch(googleApiUrl); 
                 let data = await res.json();
                 
                 if (data.status === "success" && data.price !== "0") {
                     fuelInput.value = parseInt(data.price, 10).toLocaleString('vi-VN');
                 } else {
-                    throw new Error("Không có dữ liệu");
+                    throw new Error("Dữ liệu lỗi");
                 }
             } catch(e) {
                 console.log("Lỗi: " + e.message);
@@ -229,16 +339,17 @@
             }
         }
 
+        // KHI VỪA MỞ APP LÊN: Cập nhật giá xăng & Vẽ các nút Cao tốc
         document.addEventListener('DOMContentLoaded', function() {
-            // Tự động gọi hàm lấy giá ngay khi mở ứng dụng
+            renderQuickTags(); // <--- Lấy bộ nhớ cao tốc ra vẽ
+            
             if(document.getElementById('fuelPrice').value === "24.000") {
                  autoUpdateFuelPrice();
             }
         });
 
-
         // ==========================================
-        // CÁC HÀM XỬ LÝ ĐỊA ĐIỂM, GPS, BÁO GIÁ
+        // GHIM VỊ TRÍ & ĐỊA CHỈ & TÍNH KHOẢNG CÁCH
         // ==========================================
         let debounceTimer;
         async function getSuggestions(inputId, sugBoxId) {
@@ -287,7 +398,7 @@
         }
 
         document.addEventListener('click', function(e) {
-            if(!e.target.closest('.input-group')) {
+            if(!e.target.closest('.input-group') && e.target.id !== 'tollModal') {
                 document.getElementById('startSug').style.display = 'none';
                 document.getElementById('endSug').style.display = 'none';
             }
@@ -358,6 +469,9 @@
             }
         }
 
+        // ==========================================
+        // TÍNH TOÁN BÁO GIÁ
+        // ==========================================
         function showQuote() {
             let distanceStr = document.getElementById('distance').value;
             let distance = parseFloat(distanceStr.replace(',', '.'));
