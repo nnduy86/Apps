@@ -40,13 +40,11 @@
         .check-item { background: #222; padding: 8px 12px; border-radius: 20px; border: 1px solid #444; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; }
         .check-item input { accent-color: var(--neon-pink); }
 
-        /* Nút tính giá */
         .btn-quote { 
             background: linear-gradient(45deg, #ff00ea, #4a00e0); border: none; color: white; 
             font-size: 1.1rem; box-shadow: 0 0 15px rgba(255, 0, 234, 0.5); 
         }
 
-        /* Nút cộng dồn phụ phí nhanh */
         .quick-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
         .tag-btn { background: #1a1a1a; border: 1px solid #555; color: #00f3ff; font-size: 0.75rem; padding: 5px 8px; border-radius: 15px; cursor: pointer; transition: 0.2s;}
         .tag-btn:active { background: #00f3ff; color: #000; }
@@ -124,7 +122,7 @@
         
         <label style="display: flex; justify-content: space-between;">
             Giá Xăng/Dầu (VNĐ/Lít): 
-            <span style="color:var(--neon-green); cursor:pointer;" onclick="autoUpdateFuelPrice()">🔄 Cập nhật</span>
+            <span style="color:var(--neon-green); cursor:pointer;" onclick="autoUpdateFuelPrice()">⚡ Lấy Giá Live</span>
         </label>
         <input type="text" id="fuelPrice" oninput="formatCurrency(this)" value="24.000">
     </div>
@@ -179,38 +177,22 @@
     <script>
         const GOONG_API_KEY = "20EqreM05diMJrpTrzot0VLzKOcrgwFq81rApwxw";
 
-        // ==========================================
-        // BỘ CÔNG CỤ XỬ LÝ SỐ CÓ DẤU CHẤM HÀNG NGÀN
-        // ==========================================
-        
-        // 1. Hàm tự động thêm dấu chấm khi gõ
         function formatCurrency(inputElement) {
-            // Lọc bỏ các ký tự không phải là số
             let val = inputElement.value.replace(/\D/g, '');
-            if(val === '') {
-                inputElement.value = '';
-                return;
-            }
-            // Định dạng lại theo chuẩn Việt Nam (100.000)
+            if(val === '') { inputElement.value = ''; return; }
             inputElement.value = parseInt(val, 10).toLocaleString('vi-VN');
         }
 
-        // 2. Hàm dịch ngược từ chữ có dấu chấm (100.000) thành số máy tính hiểu (100000)
         function parseNum(str) {
             if (!str) return 0;
-            // Thay dấu phẩy KM thành dấu chấm thập phân nếu có, loại bỏ dấu chấm hàng ngàn
-            if(str.includes(',') && str.length < 6) {
-                return parseFloat(str.replace(',', '.')); // Xử lý số KM 15,5 km
-            }
+            if(str.includes(',') && str.length < 6) return parseFloat(str.replace(',', '.')); 
             return parseInt(str.replace(/\./g, ''), 10) || 0;
         }
 
-        // 3. Hàm xử lý nút bấm cộng dồn tiền
         function addMoney(inputId, amount) {
             let inputEl = document.getElementById(inputId);
             let currentVal = parseNum(inputEl.value);
-            let newVal = currentVal + amount;
-            inputEl.value = newVal.toLocaleString('vi-VN');
+            inputEl.value = (currentVal + amount).toLocaleString('vi-VN');
         }
 
         function clearMoney(inputId) {
@@ -219,36 +201,44 @@
 
 
         // ==========================================
-        // TỰ ĐỘNG CẬP NHẬT GIÁ XĂNG (BẢN NÂNG CẤP CÓ DẤU CHẤM)
+        // LẤY GIÁ XĂNG TỐC ĐỘ "TÍCH ĐIỆN" BẰNG GOOGLE API RIÊNG
         // ==========================================
         async function autoUpdateFuelPrice() {
             const fuelInput = document.getElementById('fuelPrice');
             const originalValue = fuelInput.value;
-            fuelInput.value = "Đang tải..."; 
+            
+            // Đổi text để báo hiệu đang chạy
+            fuelInput.value = "Đang lấy giá..."; 
+            
+            // Link API máy chủ Google của bạn
+            const googleApiUrl = "https://script.google.com/macros/s/AKfycbx8uguJw6jxctRipl98Q95IlhvGaWWqeNAwco3ZMi24WSW7S7puiKJGrBuxSjzjGFFsXA/exec"; 
             
             try {
-                let res = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://webgia.com/gia-xang-dau/petrolimex/'));
+                // Tải trực tiếp từ máy chủ Google
+                let res = await fetch(googleApiUrl); 
                 let data = await res.json();
-                let html = data.contents;
                 
-                let match = html.match(/RON\s*95-III[\s\S]{0,150}?(2[0-9][.,][0-9]{3})/i);
-                if(match && match[1]) {
-                    let price = match[1].replace(/[,.]/g, ''); 
-                    // Gắn vào ô nhập với định dạng có dấu chấm
-                    fuelInput.value = parseInt(price, 10).toLocaleString('vi-VN');
+                if (data.status === "success" && data.price !== "0") {
+                    fuelInput.value = parseInt(data.price, 10).toLocaleString('vi-VN');
                 } else {
-                    throw new Error("Lỗi đọc cấu trúc");
+                    throw new Error("Không có dữ liệu");
                 }
             } catch(e) {
+                console.log("Lỗi: " + e.message);
                 fuelInput.value = originalValue;
             }
         }
 
-        document.addEventListener('DOMContentLoaded', autoUpdateFuelPrice);
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tự động gọi hàm lấy giá ngay khi mở ứng dụng
+            if(document.getElementById('fuelPrice').value === "24.000") {
+                 autoUpdateFuelPrice();
+            }
+        });
 
 
         // ==========================================
-        // GHIM VỊ TRÍ VÀ GỢI Ý ĐỊA CHỈ
+        // CÁC HÀM XỬ LÝ ĐỊA ĐIỂM, GPS, BÁO GIÁ
         // ==========================================
         let debounceTimer;
         async function getSuggestions(inputId, sugBoxId) {
@@ -267,12 +257,8 @@
             }
 
             if(val.length < 2) { 
-                if (pinnedItem) {
-                    sugBox.innerHTML = pinnedItem;
-                    sugBox.style.display = 'block';
-                } else {
-                    sugBox.style.display = 'none'; 
-                }
+                if (pinnedItem) { sugBox.innerHTML = pinnedItem; sugBox.style.display = 'block'; } 
+                else { sugBox.style.display = 'none'; }
                 return; 
             }
 
@@ -334,9 +320,6 @@
             );
         }
 
-        // ==========================================
-        // ĐO KHOẢNG CÁCH TỰ ĐỘNG
-        // ==========================================
         async function autoCalculateDistance() {
             const startInput = document.getElementById('startLoc');
             const endInput = document.getElementById('endLoc');
@@ -348,9 +331,7 @@
 
             try {
                 async function getCoords(address, inputElement) {
-                    if (inputElement.hasAttribute('data-coords')) {
-                        return inputElement.getAttribute('data-coords');
-                    }
+                    if (inputElement.hasAttribute('data-coords')) { return inputElement.getAttribute('data-coords'); }
                     if(address.includes(',') && !address.match(/[a-zA-Z]/)) return address; 
                     
                     let res = await fetch(`https://rsapi.goong.io/geocode?address=${encodeURIComponent(address)}&api_key=${GOONG_API_KEY}`);
@@ -367,7 +348,6 @@
 
                 if(routeData.routes && routeData.routes.length > 0) {
                     let distanceKm = (routeData.routes[0].legs[0].distance.value / 1000).toFixed(1);
-                    // Sửa dấu . thành dấu , cho người Việt dễ nhìn (VD: 15,5)
                     document.getElementById('distance').value = distanceKm.replace('.', ',');
                     document.getElementById('loading').style.display = 'none';
                 } else throw new Error("Không thể vẽ đường!");
@@ -378,11 +358,7 @@
             }
         }
 
-        // ==========================================
-        // TÍNH TOÁN BÁO GIÁ
-        // ==========================================
         function showQuote() {
-            // Lấy khoảng cách (có thể có dạng 15,5 hoặc 15.5)
             let distanceStr = document.getElementById('distance').value;
             let distance = parseFloat(distanceStr.replace(',', '.'));
             
@@ -392,7 +368,6 @@
             let servicePrice = parseFloat(document.getElementById('serviceType').value);
             let days = parseInt(document.getElementById('days').value) || 1;
             
-            // Xóa dấu chấm hàng ngàn trước khi tính
             let fuelPrice = parseNum(document.getElementById('fuelPrice').value);
             let tollFee = parseNum(document.getElementById('tollFee').value);
             let ferryFee = parseNum(document.getElementById('ferryFee').value);
@@ -400,7 +375,6 @@
             let carSelect = document.getElementById('carType');
             let fuelConsumption = parseFloat(carSelect.options[carSelect.selectedIndex].getAttribute('data-fuel'));
 
-            // Phí trạm thu phí x2 nếu đi khứ hồi trên 1.5 (Tính cả chiều về)
             let totalTollAndFerry = (tollFee + ferryFee) * ((tripMultiplier >= 1.5) ? 2 : 1);
 
             let otherFees = 0;
@@ -409,17 +383,14 @@
 
             let totalFees = totalTollAndFerry + otherFees;
 
-            // Bắt đầu tính toán các cấu phần
             let grossTotal = (distance * tripMultiplier * servicePrice) + totalFees;
             let fuelCost = (distance * tripMultiplier / 100) * fuelConsumption * fuelPrice;
             let driverWage = days > 1 ? 500000 * days : (tripMultiplier > 1.2 ? 500000 : 300000);
 
-            // Làm tròn tổng tiền cho đẹp (Làm tròn lên hàng ngàn)
             grossTotal = Math.ceil(grossTotal / 1000) * 1000;
             
             let netProfit = grossTotal - fuelCost - driverWage - totalFees;
 
-            // In ra giao diện với format tiền Việt
             document.getElementById('displayTotal').innerText = grossTotal.toLocaleString('vi-VN') + " đ";
             document.getElementById('costFuel').innerText = fuelCost.toLocaleString('vi-VN') + " đ";
             document.getElementById('costDriver').innerText = driverWage.toLocaleString('vi-VN') + " đ";
