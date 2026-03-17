@@ -77,7 +77,9 @@
         
         .btn-quote { background: linear-gradient(45deg, #ff00ea, #4a00e0); border: none; color: white; font-size: 1.1rem; box-shadow: 0 0 15px rgba(255, 0, 234, 0.5); }
         .btn-zalo { background: linear-gradient(45deg, #0068ff, #00c6ff); border: none; color: white; font-size: 1.1rem; box-shadow: 0 0 15px rgba(0, 104, 255, 0.5); margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;}
-        .btn-zalo img { width: 22px; height: 22px; filter: brightness(0) invert(1); }
+        
+        /* Chỉnh lại Logo Zalo rõ nét */
+        .btn-zalo img { width: 28px; height: 28px; background: #ffffff; border-radius: 50%; padding: 2px; box-shadow: 0 0 5px rgba(255,255,255,0.5); }
 
         #result-box { display: none; background: linear-gradient(145deg, #1a0014, #00121a); border: 2px solid var(--neon-blue); border-radius: 15px; padding: 20px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.2); margin-top: 20px; animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -87,8 +89,6 @@
         
         #loading { display: none; text-align: center; color: var(--neon-yellow); font-size: 0.9rem; margin-top: 10px; font-style: italic; animation: pulse-loading 1s infinite; }
         @keyframes pulse-loading { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-
-        input::placeholder { color: #888; font-style: italic; }
 
         /* KHUNG THÔNG BÁO TÙY CHỈNH CHUYÊN NGHIỆP */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 999999; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
@@ -157,7 +157,7 @@
         
         <label style="color: #00f3ff;">Gửi Link Website cho khách tự đặt xe:</label>
         <button onclick="shareLinkToZalo()" style="background: #0068ff; color: #fff; width: 100%; padding: 12px; border: 1px solid #00c6ff; border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 0 10px rgba(0, 104, 255, 0.5); font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Icon_of_Zalo.svg/1024px-Icon_of_Zalo.svg.png" style="width: 20px; height: 20px; filter: brightness(0) invert(1);" alt="Zalo">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Icon_of_Zalo.svg/1024px-Icon_of_Zalo.svg.png" style="width: 24px; height: 24px; background: #ffffff; border-radius: 50%; padding: 2px;" alt="Zalo">
             COPY LINK GỬI KHÁCH
         </button>
     </div>
@@ -264,7 +264,6 @@
             if (event.key === "Enter") { event.preventDefault(); checkPass(); }
         });
 
-        // BẢNG THÔNG BÁO TỐI GIẢN
         function showCustomAlert(title, message, type, zaloMsgData = "") {
             document.getElementById('alertModal').style.display = 'flex';
             document.getElementById('alertTitle').innerText = title;
@@ -284,13 +283,12 @@
                 btnZalo.style.display = 'none';
             } 
             else if (type === "success") {
-                // Trạng thái Success đơn giản, KHÔNG hiện nút mở Zalo
                 box.style.borderColor = "var(--neon-green)";
                 box.style.boxShadow = "0 0 20px rgba(57, 255, 20, 0.3)";
                 titleEl.style.color = "var(--neon-green)";
                 iconEl.innerText = "✅";
                 iconEl.style.textShadow = "0 0 15px var(--neon-green)";
-                btnZalo.style.display = 'none'; // Ẩn luôn nút mở Zalo
+                btnZalo.style.display = 'none';
             }
             else if (type === "zalo_inapp") {
                 box.style.borderColor = "var(--neon-yellow)";
@@ -304,7 +302,6 @@
 
         function closeAlertModal() { document.getElementById('alertModal').style.display = 'none'; }
 
-        // LOGIC CHỈ COPY LINK (DÀNH CHO ADMIN)
         function shareLinkToZalo() {
             let linkWebCuaBan = "https://nnduy86.github.io/BaoGiaTaxi/"; 
             let tinNhan = "🚕 TAXI NHƠN TRẠCH 2086 xin chào!\n👉 Mời quý khách bấm vào link dưới đây để tự chọn điểm đón/đến và xem Báo giá trọn gói:\n\n" 
@@ -318,13 +315,9 @@
             document.execCommand("copy");
             document.body.removeChild(tempInput);
 
-            // Hiện thông báo báo đã copy, không ép mở Zalo nữa
             showCustomAlert("ĐÃ COPY THÀNH CÔNG", "Lời chào và Đường Link đã được copy vào bộ nhớ tạm.\n\nBây giờ bạn hãy thoát ra, vào Zalo ấn giữ vào chỗ nhắn tin với khách và chọn 'Dán' (Paste) để gửi nhé!", "success");
         }
 
-        // =======================================================
-        // LOGIC CHỐT ĐƠN DÀNH CHO KHÁCH HÀNG (GIỮ NGUYÊN)
-        // =======================================================
         function bookViaZaloFast() {
             let startInput = document.getElementById('startLoc');
             let endInput = document.getElementById('endLoc');
@@ -378,13 +371,14 @@
             }
         }
 
-        // ==========================================
-        // CÁC LOGIC HOẠT ĐỘNG CÒN LẠI (GIỮ NGUYÊN)
-        // ==========================================
+        let isManualDistance = false;
+        let isCalculating = false;
         let pText = " ✍️ Chạm để nhập số KM hoặc chờ máy tự đo... ";
         let pIndex = 0;
         
         setInterval(() => {
+            if(isCalculating) return;
+
             let distInput = document.getElementById('distance');
             if(distInput.value === "" && document.activeElement !== distInput) {
                 distInput.placeholder = pText.substring(pIndex) + pText.substring(0, pIndex);
@@ -467,18 +461,18 @@
 
             debounceTimer = setTimeout(async () => {
                 try {
-                    let res = await fetch(`https://rsapi.goong.io/Place/AutoComplete?input=${encodeURIComponent(val)}&api_key=${GOONG_API_KEY}`);
+                    let res = await fetch(`https://rsapi.goong.io/Place/AutoComplete?input=${encodeURIComponent(val)}&api_key=${GOONG_API_KEY}&location=10.7326,106.9458&radius=50`);
                     let data = await res.json();
                     sugBox.innerHTML = pinnedItem; 
                     if(data.predictions && data.predictions.length > 0) {
                         data.predictions.forEach(item => {
                             let div = document.createElement('div');
                             div.className = 'suggestion-item';
-                            div.innerText = item.description;
+                            div.innerHTML = `<strong>${item.structured_formatting.main_text}</strong><br><span style="font-size:0.85rem; color:#aaa;">${item.structured_formatting.secondary_text}</span>`;
                             div.onclick = function() {
                                 inputEl.value = item.description;
                                 sugBox.style.display = 'none';
-                                checkReadyToCalculate();
+                                getPlaceDetailAndCalculate(item.place_id, inputEl);
                             };
                             sugBox.appendChild(div);
                         });
@@ -486,6 +480,20 @@
                     sugBox.style.display = 'block';
                 } catch(e) {}
             }, 300);
+        }
+
+        async function getPlaceDetailAndCalculate(placeId, inputEl) {
+            const url = `https://rsapi.goong.io/Place/Detail?place_id=${placeId}&api_key=${GOONG_API_KEY}`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                if(data.result && data.result.geometry) {
+                    let lat = data.result.geometry.location.lat;
+                    let lng = data.result.geometry.location.lng;
+                    inputEl.setAttribute('data-coords', `${lat},${lng}`);
+                    checkReadyToCalculate(); 
+                }
+            } catch(err) {}
         }
 
         document.addEventListener('click', function(e) {
@@ -534,18 +542,21 @@
 
         async function autoCalculateDistance() {
             if(isManualDistance) return;
+
             const startInput = document.getElementById('startLoc');
             const endInput = document.getElementById('endLoc');
             const startStr = startInput.value;
             const endStr = endInput.value;
 
+            isCalculating = true;
             document.getElementById('loading').style.display = 'block';
             document.getElementById('distance').value = ""; 
-            document.getElementById('distance').placeholder = "Đang tính toán...";
+            document.getElementById('distance').placeholder = "Đang đo vệ tinh...";
 
             try {
                 async function getCoords(address, inputElement) {
                     if (inputElement.hasAttribute('data-coords')) { return inputElement.getAttribute('data-coords'); }
+                    
                     if(address.includes(',') && !address.match(/[a-zA-Z]/)) return address; 
                     let res = await fetch(`https://rsapi.goong.io/geocode?address=${encodeURIComponent(address)}&api_key=${GOONG_API_KEY}`);
                     let data = await res.json();
@@ -555,6 +566,7 @@
 
                 let originCoords = await getCoords(startStr, startInput);
                 let destCoords = await getCoords(endStr, endInput);
+
                 let routeRes = await fetch(`https://rsapi.goong.io/Direction?origin=${originCoords}&destination=${destCoords}&vehicle=car&api_key=${GOONG_API_KEY}`);
                 let routeData = await routeRes.json();
 
@@ -565,13 +577,18 @@
                     distInput.style.color = '#00f3ff'; 
                     distInput.style.background = '#222';
                     isManualDistance = false;
+                    isCalculating = false;
                     document.getElementById('loading').style.display = 'none';
                     showQuote(); 
                 } else throw new Error("Không thể vẽ đường!");
+
             } catch (error) {
+                isCalculating = false;
                 document.getElementById('loading').style.display = 'none';
                 let distInput = document.getElementById('distance');
                 distInput.value = ""; 
+                distInput.placeholder = "⚠ Lỗi! Mời nhập tay KM";
+                distInput.style.color = "var(--neon-yellow)";
             }
         }
 
