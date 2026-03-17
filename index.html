@@ -126,7 +126,7 @@
             <div class="modal-title" id="alertTitle" style="color: var(--neon-green);">THÀNH CÔNG</div>
             <div class="modal-message" id="alertMessage">...</div>
             <div class="modal-buttons">
-                <button class="btn-cancel" onclick="closeAlertModal()">ĐÓNG</button>
+                <button class="btn-cancel" onclick="closeAlertModal()" style="width: 100%;">ĐÓNG</button>
                 <a class="btn-confirm btn-zalo-modal" id="btnZaloAction" style="display:none;" onclick="closeAlertModal()">MỞ ZALO</a>
             </div>
         </div>
@@ -264,7 +264,7 @@
             if (event.key === "Enter") { event.preventDefault(); checkPass(); }
         });
 
-        // BẢNG THÔNG BÁO XỬ LÝ NHIỀU TRẠNG THÁI
+        // BẢNG THÔNG BÁO TỐI GIẢN
         function showCustomAlert(title, message, type, zaloMsgData = "") {
             document.getElementById('alertModal').style.display = 'flex';
             document.getElementById('alertTitle').innerText = title;
@@ -283,28 +283,28 @@
                 iconEl.style.textShadow = "0 0 15px var(--neon-red)";
                 btnZalo.style.display = 'none';
             } 
-            else if (type === "zalo_inapp") {
-                // Trạng thái dành riêng cho khách mở trong Zalo
-                box.style.borderColor = "var(--neon-yellow)";
-                box.style.boxShadow = "0 0 20px rgba(255, 251, 0, 0.3)";
-                titleEl.style.color = "var(--neon-yellow)";
-                iconEl.innerText = "📋";
-                iconEl.style.textShadow = "0 0 15px var(--neon-yellow)";
-                btnZalo.style.display = 'none'; // Chỉ cần hiện nút ĐÓNG
-            }
-            else if (type === "copy_link") {
+            else if (type === "success") {
+                // Trạng thái Success đơn giản, KHÔNG hiện nút mở Zalo
                 box.style.borderColor = "var(--neon-green)";
                 box.style.boxShadow = "0 0 20px rgba(57, 255, 20, 0.3)";
                 titleEl.style.color = "var(--neon-green)";
                 iconEl.innerText = "✅";
                 iconEl.style.textShadow = "0 0 15px var(--neon-green)";
-                btnZalo.style.display = 'none'; // Admin tự copy rồi thì tự mở Zalo ngoài, ko cần nút rườm rà
+                btnZalo.style.display = 'none'; // Ẩn luôn nút mở Zalo
+            }
+            else if (type === "zalo_inapp") {
+                box.style.borderColor = "var(--neon-yellow)";
+                box.style.boxShadow = "0 0 20px rgba(255, 251, 0, 0.3)";
+                titleEl.style.color = "var(--neon-yellow)";
+                iconEl.innerText = "📋";
+                iconEl.style.textShadow = "0 0 15px var(--neon-yellow)";
+                btnZalo.style.display = 'none';
             }
         }
 
         function closeAlertModal() { document.getElementById('alertModal').style.display = 'none'; }
 
-        // ADMIN COPY LINK
+        // LOGIC CHỈ COPY LINK (DÀNH CHO ADMIN)
         function shareLinkToZalo() {
             let linkWebCuaBan = "https://nnduy86.github.io/BaoGiaTaxi/"; 
             let tinNhan = "🚕 TAXI NHƠN TRẠCH 2086 xin chào!\n👉 Mời quý khách bấm vào link dưới đây để tự chọn điểm đón/đến và xem Báo giá trọn gói:\n\n" 
@@ -318,11 +318,12 @@
             document.execCommand("copy");
             document.body.removeChild(tempInput);
 
-            showCustomAlert("ĐÃ COPY THÀNH CÔNG", "Lời chào và Đường Link đã được copy.\n\nBây giờ bạn hãy thoát App này ra, vào Zalo, ấn giữ khung chat với khách và chọn 'Dán' (Paste) để gửi là xong nhé!", "copy_link");
+            // Hiện thông báo báo đã copy, không ép mở Zalo nữa
+            showCustomAlert("ĐÃ COPY THÀNH CÔNG", "Lời chào và Đường Link đã được copy vào bộ nhớ tạm.\n\nBây giờ bạn hãy thoát ra, vào Zalo ấn giữ vào chỗ nhắn tin với khách và chọn 'Dán' (Paste) để gửi nhé!", "success");
         }
 
         // =======================================================
-        // LOGIC CHỐT ĐƠN MỚI NHẤT (SMART ZALO BYPASS)
+        // LOGIC CHỐT ĐƠN DÀNH CHO KHÁCH HÀNG (GIỮ NGUYÊN)
         // =======================================================
         function bookViaZaloFast() {
             let startInput = document.getElementById('startLoc');
@@ -360,7 +361,6 @@
                       "🔄 Chuyến: " + tripName + " (" + timeDesc + ")\n\n" +
                       "💰 GIÁ KHÁCH ĐÃ CHỐT: " + price;
 
-            // 1. Tự động Copy tin nhắn vào bộ nhớ tạm
             let tempInput = document.createElement("textarea");
             tempInput.value = msg;
             document.body.appendChild(tempInput);
@@ -368,14 +368,11 @@
             document.execCommand("copy");
             document.body.removeChild(tempInput);
 
-            // 2. Nhận diện người dùng đang xem ở đâu
             let isZalo = /Zalo/i.test(navigator.userAgent);
 
             if (isZalo) {
-                // NẾU KHÁCH ĐANG BỊ NHỐT TRONG ZALO IN-APP BROWSER
                 showCustomAlert("ĐÃ COPY THÔNG TIN", "Hệ thống đã sao chép lộ trình chuyến đi của bạn.\n\nVì bạn đang mở bằng Zalo, vui lòng bấm nút [ĐÓNG] ở bảng này, sau đó bấm dấu [X] ở góc trên bên trái màn hình để quay lại khung Chat.\n\nCuối cùng chọn DÁN (Paste) để gửi tin nhắn cho chúng tôi nhé!", "zalo_inapp");
             } else {
-                // NẾU KHÁCH ĐANG DÙNG CHROME / SAFARI / APP NỘI BỘ -> ĐÁ VĂNG SANG APP ZALO
                 let zaloLink = "https://zalo.me/0986071012?text=" + encodeURIComponent(msg);
                 window.location.href = zaloLink;
             }
@@ -537,7 +534,6 @@
 
         async function autoCalculateDistance() {
             if(isManualDistance) return;
-
             const startInput = document.getElementById('startLoc');
             const endInput = document.getElementById('endLoc');
             const startStr = startInput.value;
