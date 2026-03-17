@@ -90,6 +90,7 @@
 
         input::placeholder { color: #888; font-style: italic; }
 
+        /* KHUNG THÔNG BÁO TÙY CHỈNH CHUYÊN NGHIỆP */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 999999; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal-box { background: #111; border: 2px solid var(--neon-blue); padding: 25px; border-radius: 15px; text-align: center; width: 90%; max-width: 330px; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4); animation: popIn 0.3s ease-out; }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -120,13 +121,13 @@
     </div>
 
     <div class="modal-overlay" id="alertModal">
-        <div class="modal-box" style="border-color: var(--neon-green); box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);">
+        <div class="modal-box" id="alertBox" style="border-color: var(--neon-green); box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);">
             <div id="alertIcon" style="font-size: 3rem; margin-bottom: 10px; text-shadow: 0 0 15px var(--neon-green);">✅</div>
             <div class="modal-title" id="alertTitle" style="color: var(--neon-green);">THÀNH CÔNG</div>
             <div class="modal-message" id="alertMessage">...</div>
             <div class="modal-buttons">
                 <button class="btn-cancel" onclick="closeAlertModal()">ĐÓNG</button>
-                <a class="btn-confirm btn-zalo-modal" id="btnZaloAction" style="display:none;">MỞ ZALO</a>
+                <a class="btn-confirm btn-zalo-modal" id="btnZaloAction" style="display:none;" onclick="closeAlertModal()">MỞ ZALO</a>
             </div>
         </div>
     </div>
@@ -157,7 +158,7 @@
         <label style="color: #00f3ff;">Gửi Link Website cho khách tự đặt xe:</label>
         <button onclick="shareLinkToZalo()" style="background: #0068ff; color: #fff; width: 100%; padding: 12px; border: 1px solid #00c6ff; border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 0 10px rgba(0, 104, 255, 0.5); font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Icon_of_Zalo.svg/1024px-Icon_of_Zalo.svg.png" style="width: 20px; height: 20px; filter: brightness(0) invert(1);" alt="Zalo">
-            COPY LINK & MỞ ZALO
+            COPY LINK GỬI KHÁCH
         </button>
     </div>
 
@@ -255,7 +256,7 @@
                 lockIcon.innerText = "🔓"; 
             } else {
                 document.getElementById('adminPass').value = '';
-                alert("Mật mã không chính xác!");
+                showCustomAlert("CẢNH BÁO", "Mật mã không chính xác!", "error");
             }
         }
 
@@ -263,29 +264,47 @@
             if (event.key === "Enter") { event.preventDefault(); checkPass(); }
         });
 
-        // Bảng thông báo xịn dành riêng cho Admin copy link
-        function showCustomAlertForAdmin(title, message) {
+        // BẢNG THÔNG BÁO XỬ LÝ NHIỀU TRẠNG THÁI
+        function showCustomAlert(title, message, type, zaloMsgData = "") {
             document.getElementById('alertModal').style.display = 'flex';
             document.getElementById('alertTitle').innerText = title;
             document.getElementById('alertMessage').innerText = message;
             
             let btnZalo = document.getElementById('btnZaloAction');
-            btnZalo.style.display = 'block';
-            
-            btnZalo.onclick = function() {
-                // Tạo thẻ a ẩn và dùng _top để vượt rào
-                let a = document.createElement('a');
-                a.href = "https://zalo.me/";
-                a.target = "_top"; 
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                closeAlertModal();
-            };
+            let box = document.getElementById('alertBox');
+            let titleEl = document.getElementById('alertTitle');
+            let iconEl = document.getElementById('alertIcon');
+
+            if(type === "error") {
+                box.style.borderColor = "var(--neon-red)";
+                box.style.boxShadow = "0 0 20px rgba(255, 51, 51, 0.3)";
+                titleEl.style.color = "var(--neon-red)";
+                iconEl.innerText = "❌";
+                iconEl.style.textShadow = "0 0 15px var(--neon-red)";
+                btnZalo.style.display = 'none';
+            } 
+            else if (type === "zalo_inapp") {
+                // Trạng thái dành riêng cho khách mở trong Zalo
+                box.style.borderColor = "var(--neon-yellow)";
+                box.style.boxShadow = "0 0 20px rgba(255, 251, 0, 0.3)";
+                titleEl.style.color = "var(--neon-yellow)";
+                iconEl.innerText = "📋";
+                iconEl.style.textShadow = "0 0 15px var(--neon-yellow)";
+                btnZalo.style.display = 'none'; // Chỉ cần hiện nút ĐÓNG
+            }
+            else if (type === "copy_link") {
+                box.style.borderColor = "var(--neon-green)";
+                box.style.boxShadow = "0 0 20px rgba(57, 255, 20, 0.3)";
+                titleEl.style.color = "var(--neon-green)";
+                iconEl.innerText = "✅";
+                iconEl.style.textShadow = "0 0 15px var(--neon-green)";
+                btnZalo.style.display = 'none'; // Admin tự copy rồi thì tự mở Zalo ngoài, ko cần nút rườm rà
+            }
         }
 
         function closeAlertModal() { document.getElementById('alertModal').style.display = 'none'; }
 
+        // ADMIN COPY LINK
         function shareLinkToZalo() {
             let linkWebCuaBan = "https://nnduy86.github.io/BaoGiaTaxi/"; 
             let tinNhan = "🚕 TAXI NHƠN TRẠCH 2086 xin chào!\n👉 Mời quý khách bấm vào link dưới đây để tự chọn điểm đón/đến và xem Báo giá trọn gói:\n\n" 
@@ -299,10 +318,72 @@
             document.execCommand("copy");
             document.body.removeChild(tempInput);
 
-            showCustomAlertForAdmin("ĐÃ COPY THÀNH CÔNG", "Lời chào và Đường Link đã được copy.\n\nBấm nút MỞ ZALO bên dưới, ứng dụng Zalo sẽ hiện ra. Bạn ấn giữ vào chỗ nhắn tin với khách và chọn 'Dán' (Paste) là xong.");
+            showCustomAlert("ĐÃ COPY THÀNH CÔNG", "Lời chào và Đường Link đã được copy.\n\nBây giờ bạn hãy thoát App này ra, vào Zalo, ấn giữ khung chat với khách và chọn 'Dán' (Paste) để gửi là xong nhé!", "copy_link");
         }
 
-        let isManualDistance = false;
+        // =======================================================
+        // LOGIC CHỐT ĐƠN MỚI NHẤT (SMART ZALO BYPASS)
+        // =======================================================
+        function bookViaZaloFast() {
+            let startInput = document.getElementById('startLoc');
+            let endInput = document.getElementById('endLoc');
+            let startText = startInput.value || "Không rõ";
+            let endText = endInput.value || "Không rõ";
+            
+            let startCoords = startInput.getAttribute('data-coords');
+            let endCoords = endInput.getAttribute('data-coords');
+
+            let startMapLink = startCoords ? "https://www.google.com/maps/search/?api=1&query=" + startCoords : "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(startText);
+            let endMapLink = endCoords ? "https://www.google.com/maps/search/?api=1&query=" + endCoords : "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(endText);
+
+            if(startText === "Không rõ") startMapLink = "Khách không nhập địa chỉ đón";
+            if(endText === "Không rõ") endMapLink = "Khách không nhập địa chỉ đến";
+
+            let dist = document.getElementById('distance').value;
+            if(isManualDistance && !dist.includes("KM") && dist !== "") dist += " KM";
+
+            let price = document.getElementById('displayTotal').getAttribute('data-finalprice'); 
+            let tripName = document.getElementById('tripType').options[document.getElementById('tripType').selectedIndex].text;
+            let days = document.getElementById('days').value;
+            let serviceName = document.getElementById('serviceType').options[document.getElementById('serviceType').selectedIndex].text;
+
+            let timeDesc = (days > 1) ? (days + " Ngày") : "Về trong ngày";
+
+            let msg = "🚕 YÊU CẦU ĐẶT XE TỪ WEB:\n\n" +
+                      "🟢 ĐIỂM ĐÓN: " + startText + "\n" +
+                      "📍 Chỉ đường Đón:\n" + startMapLink + "\n\n" +
+                      "🔴 ĐIỂM ĐẾN: " + endText + "\n" +
+                      "🚩 Chỉ đường Đích:\n" + endMapLink + "\n\n" +
+                      "📏 Cự ly: " + dist + "\n" +
+                      "🚘 Loại xe: 7 Chỗ Rộng Rãi\n" +
+                      "💎 Dịch vụ: " + serviceName.split('(')[0].trim() + "\n" +
+                      "🔄 Chuyến: " + tripName + " (" + timeDesc + ")\n\n" +
+                      "💰 GIÁ KHÁCH ĐÃ CHỐT: " + price;
+
+            // 1. Tự động Copy tin nhắn vào bộ nhớ tạm
+            let tempInput = document.createElement("textarea");
+            tempInput.value = msg;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            // 2. Nhận diện người dùng đang xem ở đâu
+            let isZalo = /Zalo/i.test(navigator.userAgent);
+
+            if (isZalo) {
+                // NẾU KHÁCH ĐANG BỊ NHỐT TRONG ZALO IN-APP BROWSER
+                showCustomAlert("ĐÃ COPY THÔNG TIN", "Hệ thống đã sao chép lộ trình chuyến đi của bạn.\n\nVì bạn đang mở bằng Zalo, vui lòng bấm nút [ĐÓNG] ở bảng này, sau đó bấm dấu [X] ở góc trên bên trái màn hình để quay lại khung Chat.\n\nCuối cùng chọn DÁN (Paste) để gửi tin nhắn cho chúng tôi nhé!", "zalo_inapp");
+            } else {
+                // NẾU KHÁCH ĐANG DÙNG CHROME / SAFARI / APP NỘI BỘ -> ĐÁ VĂNG SANG APP ZALO
+                let zaloLink = "https://zalo.me/0986071012?text=" + encodeURIComponent(msg);
+                window.location.href = zaloLink;
+            }
+        }
+
+        // ==========================================
+        // CÁC LOGIC HOẠT ĐỘNG CÒN LẠI (GIỮ NGUYÊN)
+        // ==========================================
         let pText = " ✍️ Chạm để nhập số KM hoặc chờ máy tự đo... ";
         let pIndex = 0;
         
@@ -343,7 +424,6 @@
         function handleDistanceInput() {
             let distInput = document.getElementById('distance');
             let val = distInput.value.trim();
-            
             if(val === "") {
                 isManualDistance = false;
                 distInput.style.background = '#222';
@@ -425,7 +505,7 @@
             startInput.value = "📍 Vị trí hiện tại (Đang quét...)"; 
             
             if (!navigator.geolocation) {
-                alert("Thiết bị không hỗ trợ định vị!");
+                showCustomAlert("LỖI ĐỊNH VỊ", "Thiết bị không hỗ trợ hoặc chưa cấp quyền GPS!", "error");
                 startInput.value = "";
                 return;
             }
@@ -439,7 +519,7 @@
                     checkReadyToCalculate();
                 },
                 (error) => {
-                    alert("Bạn chưa cấp quyền Vị trí (GPS) cho trang web này!");
+                    showCustomAlert("CHƯA CẤP QUYỀN", "Bạn chưa cấp quyền Vị trí (GPS) cho trang web này!", "error");
                     startInput.value = "";
                 },
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -457,6 +537,7 @@
 
         async function autoCalculateDistance() {
             if(isManualDistance) return;
+
             const startInput = document.getElementById('startLoc');
             const endInput = document.getElementById('endLoc');
             const startStr = startInput.value;
@@ -576,54 +657,6 @@
             animateValue('displayTotal', 0, grossTotal, 800);
             document.getElementById('displayTotal').setAttribute('data-finalprice', grossTotal.toLocaleString('vi-VN') + " đ");
             setTimeout(() => { document.getElementById('result-box').scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 100);
-        }
-
-        // TÍNH NĂNG CHỐT ZALO SIÊU TỐC TRỰC TIẾP CHO KHÁCH HÀNG (CHỐNG ĐƠ 100%)
-        function bookViaZaloFast() {
-            let startInput = document.getElementById('startLoc');
-            let endInput = document.getElementById('endLoc');
-            let startText = startInput.value || "Không rõ";
-            let endText = endInput.value || "Không rõ";
-            
-            let startCoords = startInput.getAttribute('data-coords');
-            let endCoords = endInput.getAttribute('data-coords');
-
-            let startMapLink = startCoords ? "https://www.google.com/maps/search/?api=1&query=" + startCoords : "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(startText);
-            let endMapLink = endCoords ? "https://www.google.com/maps/search/?api=1&query=" + endCoords : "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(endText);
-
-            if(startText === "Không rõ") startMapLink = "Khách không nhập địa chỉ đón";
-            if(endText === "Không rõ") endMapLink = "Khách không nhập địa chỉ đến";
-
-            let dist = document.getElementById('distance').value;
-            if(isManualDistance && !dist.includes("KM") && dist !== "") dist += " KM";
-
-            let price = document.getElementById('displayTotal').getAttribute('data-finalprice'); 
-            let tripName = document.getElementById('tripType').options[document.getElementById('tripType').selectedIndex].text;
-            let days = document.getElementById('days').value;
-            let serviceName = document.getElementById('serviceType').options[document.getElementById('serviceType').selectedIndex].text;
-
-            let timeDesc = (days > 1) ? (days + " Ngày") : "Về trong ngày";
-
-            let msg = "🚕 YÊU CẦU ĐẶT XE TỪ BẢNG GIÁ WEB:\n\n" +
-                      "🟢 ĐIỂM ĐÓN: " + startText + "\n" +
-                      "📍 Chỉ đường Đón:\n" + startMapLink + "\n\n" +
-                      "🔴 ĐIỂM ĐẾN: " + endText + "\n" +
-                      "🚩 Chỉ đường Đích:\n" + endMapLink + "\n\n" +
-                      "📏 Cự ly: " + dist + "\n" +
-                      "🚘 Loại xe: 7 Chỗ Rộng Rãi\n" +
-                      "💎 Dịch vụ: " + serviceName.split('(')[0].trim() + "\n" +
-                      "🔄 Chuyến: " + tripName + " (" + timeDesc + ")\n\n" +
-                      "💰 GIÁ KHÁCH ĐÃ CHỐT: " + price;
-
-            // Chống đơ: Bấm là mở Zalo trực tiếp, bỏ qua mọi hộp thoại rườm rà.
-            let zaloLink = "https://zalo.me/0986071012?text=" + encodeURIComponent(msg);
-            
-            let a = document.createElement('a');
-            a.href = zaloLink;
-            a.target = "_top"; // Vượt rào Zalo Browser / In-App WebView
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
         }
     </script>
 </body>
